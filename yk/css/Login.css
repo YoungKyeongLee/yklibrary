@@ -1,0 +1,47 @@
+/* 로그인 css 모음 */
+.loginSection {
+	margin: auto;
+	width: 600px;
+}
+.loginSection .login_title {
+	font-size: 20pt;
+	font-weight: bold;
+}
+.loginSection hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.loginSection .login_input *{
+	width: 400px;
+	height: 50px;
+	margin-right: auto;
+	margin-left: auto;
+	font-size: 12pt;
+}
+.login_input p{
+	display: flex;
+}
+.login_input label{
+	width: 80px;
+	height: 50px;
+	line-height: 50px;
+	max-width: 80px;
+	margin: auto;
+}
+.login_input .Button_blue {
+	font-size: 20pt;
+	line-height: 50px;
+}
+.login_signUp {
+	width:400px;
+	margin: 10px auto;
+	text-align: center;
+}
+.login_signUp div {
+	display: inline-block;
+}
+.login_signUp .Button_grey {
+	width: 100px;
+	height: 25px;
+	margin-left: 10px;
+}

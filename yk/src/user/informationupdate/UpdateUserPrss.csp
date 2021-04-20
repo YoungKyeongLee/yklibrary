@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set UserID=%request.Get("UserID")
+	set UserPW=%request.Get("UserPW")
+	set UserNewPW=%request.Get("UserNewPW")
+	set UserName=%request.Get("UserName")
+	set UserPhoneNum=%request.Get("UserPhoneNum")
+	set UserClassNum=%request.Get("UserClassNum")
+	
+	set result=$$UpdateInformation^UserManager(UserID,UserPW,UserNewPW,UserName,UserPhoneNum,UserClassNum)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 개인정보 수정 </title>
+	<script language="cache" runat="server">
+	/* =======================
+	 개인정보 수정 결과에 따라 안내문과 함께 페이지를 이동시켜주는 부분
+	 1. 정상적으로 입력했을 때 result="Y"
+	 	안내문구와 함께 회원정보 수정 페이지로 다시 이동
+	 2. 로그인 세션과 회원정보페이지에 자동입력된 아이디가 일치하지 않을 경우
+	 	안내문구와 함께 로그인 페이지로 이동
+	 3. 비밀번호가 일치하지 않는 경우
+	 	안내문구와 함께 원래 입력하던 페이지로 이동
+	======================= */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result = "#(result)#";
+		if(result==="Y"){
+			alert("정상적으로 수정되었습니다.");
+			location.href="http://localhost/yk/src/user/informationupdate/UpdateUser.csp";
+		}
+		else{
+			let reason = result.split("^")[1];
+			switch(reason){
+				case "계정불일치":
+					alert("개인정보 수정에 실패하였습니다. 재로그인 후 시도해주세요");
+					location.href="/yk/src/static/login/Login.csp"
+					break;
+				case "비밀번호불일치":
+					alert("비밀번호를 잘못 입력하셨습니다. 다시 확인해주세요");
+					history.back();
+					break;
+			}
+		}
+		-->
+	</script>
+</head>
+<body>
+</body>
+</html>

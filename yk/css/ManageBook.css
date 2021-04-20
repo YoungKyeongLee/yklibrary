@@ -1,0 +1,94 @@
+.manageBookSection {
+	margin: 0px 100px;
+}
+.manageBookSection article{
+	display: inline-block;
+}
+.nav_art {
+	height: 500px;
+	vertical-align: top;
+}
+.content_art {
+	min-width: 700px;
+}
+.title_side_filter {
+	float:right;
+}
+.title_side_filter .Button_blue,
+.title_side_filter .Button_grey {
+	font-size: 12pt;
+	width: 100px;
+	margin-top:10px;
+	display: inline-block;
+}
+.content_art .content_title {
+	font-size: 20pt;
+	font-weight: bold;
+	float:left;
+}
+.content_art hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.content_art .content_clear {
+	clear:both;
+}
+.list_books,
+.list_books_name {
+	margin: 0px;
+	padding-left: 0px;
+}
+.content_art li{
+	display: inline-block;
+	width: 135px;
+	height: 30px;
+	text-align: center;
+    line-height: 30px;
+    font-size: 12pt;
+}
+.content_art .list_books_name li {
+	background-color: #EAEAEA;
+}
+.content_art .view li{
+	display: inline-block;
+}
+.content_art .pageButtonList{
+	text-align:center;
+}
+.content_art .pageButtonList a:visited{
+	color: none;
+}
+.content_art .pageButtonList a{
+	padding:1px;
+	font-size:14pt;
+	cursor: pointer;
+	color: #747474;
+}
+.content_art .pageButtonList a:link{
+	text-decoration: none;
+}
+.pageButtonList .selectPage{
+	font-weight: bold;
+	color: black !important;
+}
+.content_art .pageButtonList a:hover{
+	font-weight: bold;
+	background-color: #EAEAEA;
+}
+.list_books .deleteBook {
+	background-color: #EAEAEA;
+	border-radius: 5px;
+	padding: 0px 5px;
+	margin-left: 30px;
+	cursor: pointer;
+	color:red;
+}
+.list_books .deleteBook:hover{
+	background-color: #C7C7C7;
+}
+.list_books .deleteBook:visited{
+	color: none;
+}
+.list_books .deleteBook:link{
+	text-decoration: none;
+}

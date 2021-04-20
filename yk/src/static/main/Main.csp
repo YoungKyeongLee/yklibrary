@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title> YK Library </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Main.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SideMenu.css" />
+	<script type="text/javascript" src="/yk/js/static/main/Main.js"></script>
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js"></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="mainSection">
+		<article class="nav_art">
+			<csp:include page="/yk/src/static/include/SideMenu.csp" />
+		</article>
+		<article class="content_art">
+			<div class="content_title">신착 자료</div><div class="Button_grey" onclick="moveSelectBook('#(LoginType)#')">더보기 +</div>
+			<div class="content_clear" />
+			<hr>	
+			<ul>
+				#($$SelectNewArrival^BookSelectManager())#
+			</ul>
+		</article>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

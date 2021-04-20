@@ -1,0 +1,21 @@
+.UpdateUserSection {
+	width: 600px;
+	margin: auto;
+}
+.UpdateUserSection article{
+	display: inline-block;
+}
+.content_art {
+	min-width: 700px;
+}
+.content_art .content_title {
+	font-size: 20pt;
+	font-weight: bold;
+}
+.content_art hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.changeNewPassword {
+	display: none;
+}

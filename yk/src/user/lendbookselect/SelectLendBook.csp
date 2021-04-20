@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set Paging=5
+	set UserID=%session.Get("LoginUser")
+	quit:UserID=""
+	set AllPage=$$GetLendBookCount^BookSelectManager(UserID)
+	set Page=%request.Get("Page")
+	set:Page="" Page=1
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - List </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SideMenu.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SelectLendBook.css" />
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js"></script>
+	<script type="text/javascript" src="/yk/js/user/lendbookselect/SelectLendBook.js" defer></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="listSection">
+		<article class="nav_art">
+			<csp:include page="/yk/src/static/include/SideMenu.csp" />
+		</article>
+		<article class="list_art">
+			<div class="content_title">대출 도서</div>
+			<a>(#(AllPage)#)</a>
+			<hr>
+			<ul class="list_books_name">
+				<li>도서명</li>
+				<li>저자</li>
+				<li>출판사</li>
+				<li>대출일</li>
+				<li>반납일</li>
+				<li>상태</li>
+			</ul>
+			<div class="view">
+				#($$HTMLSelectLendBook^BookSelectManager(UserID,AllPage,Page))#
+			</div>
+			<div class="pageButtonList">
+				#($$HTMLPagingSelectLendBookVer^BookSelectManager(AllPage,Paging))#
+			</div>
+		</article>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

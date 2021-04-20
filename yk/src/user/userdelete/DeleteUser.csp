@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set UserID=%session.Get("LoginUser")
+	quit:UserID=""
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - È¸¿ø Å»Åð </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/DeleteUser.css" />
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js"></script>
+	<script type="text/javascript" src="/yk/js/user/userdelete/DeleteUser.js" charset='euc-kr'></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="DeleteUserSection">
+		<article class="content_art">
+			<div class="content_title">È¸¿ø Å»Åð</div>
+			<hr>
+			<form id="DeleteUserForm" action="/yk/src/user/userdelete/DeleteUserPrss.csp" method="POST">
+				<p>
+					<label for="UserID">¾ÆÀÌµð : </label>
+					<input type="text" id="UserID" name="UserID" class="Readonly" value="#(UserID)#" readonly>
+				</p>
+				<p>
+					<label for="UserPW">ºñ¹Ð¹øÈ£ : </label>
+					<input type="password" id="UserPW" name="UserPW">
+				</p>
+				<div class="Button_blue" onclick="DeleteUserButton()">È¸¿øÅ»Åð</div>
+			</form>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

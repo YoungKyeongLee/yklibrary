@@ -1,0 +1,39 @@
+<script language="cache" runat="server">
+	/* =============================
+	 입력받은 아이디와 비밀번호를 검사하여 로그인 확인 및 로그인 성공 시 세션 생성을 위해
+	 로그인 루틴 LogInYN 을 호출하는 부분
+	=============================*/
+	set UserID=%request.Get("UserID")
+	set UserPW=%request.Get("UserPW")
+	
+	set Result=$$LogInYN^LoginManager(UserID,UserPW)
+</script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 로그아웃 </title>
+	<script language="cache" runat="server">
+		/* =============================
+		 로그인에 성공했을 땐 메인페이지로, 실패 시 이전 페이지(로그인 페이지)로 이동하는 부분
+		=============================*/
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result="#(Result)#";
+		let resultboolean = result==="Y";
+		
+		if(resultboolean){
+			alert("환영합니다.");
+			location.href="../main/Main.csp";
+		} else {
+			alert("로그인에 실패하였습니다.");
+			history.back();
+		}
+		-->
+</script>
+</head>
+<body>
+
+</body>
+</html>

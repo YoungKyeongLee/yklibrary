@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<nav class="nav">
+	<script language="cache" runat="server">
+		/* ======================
+		 Login 여부에 따라 사이드 메뉴를 보여준다.
+		 1. 회원이 로그인 했을 때 (LoginType="User")
+		  - 도서조회 버튼과 대출중 도서 버튼이 파란색으로 생성
+		 2. 관리자가 로그인 했을 때 (LoginType="Admin")
+		  - 도서관리 버튼과 신규 도서,이용자 조회,대출/반납 버튼이 빨간색으로 생성
+		 3. 비회원일 때
+		  - 도서조회 버튼이 파란색으로 생성되고,
+		  	대출중 도서 버튼은 회색으로 비활성화 되어 생성
+		======================*/
+		set LoginType=%session.Get("LoginType")
+		// LoginType이 회원이라면
+		if (LoginType="User"){
+			&html<
+				<div class="nav_menu Button_blue" onclick="location.href='/yk/src/static/bookselect/SelectBook.csp'">도서 조회</div>
+				<div class="nav_menu Button_blue" onclick="location.href='/yk/src/user/lendbookselect/SelectLendBook.csp'">대출중 도서</div>
+			>
+		}
+		// LoginType이 관리자라면
+		elseif (LoginType="Admin"){
+			&html<
+				<div class="nav_menu Button_red" onclick="location.href='/yk/src/admin/bookmanage/ManageBook.csp'">도서 관리</div>
+				<div class="nav_menu Button_red" onclick="location.href='/yk/src/admin/bookinsert/InsertBook.csp'">신규 도서</div>
+				<div class="nav_menu Button_red" onclick="location.href='/yk/src/admin/userselect/SelectUser.csp'">이용자 조회</div>
+				<div class="nav_menu Button_red" onclick="location.href='/yk/src/admin/booklend/LendBook.csp'">대출/반납</div>
+			>
+		}
+		// 로그인 하지 않았다면
+		else {
+			&html<
+				<div class="nav_menu Button_blue" onclick="location.href='/yk/src/static/bookselect/SelectBook.csp'">도서 조회</div>
+				<div class="nav_menu none_button" title="로그인 후 이용가능합니다.">대출중 도서</div>
+			>
+		}
+	</script>
+
+</nav>

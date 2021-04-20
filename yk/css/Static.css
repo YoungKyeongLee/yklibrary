@@ -1,0 +1,41 @@
+/* 전역 CSS 모음(대문자로 시작!) */
+body {
+	margin: 0px;
+}
+.Button_blue {
+	background-color: #3498DB;
+	color: white;
+	font-weight: bold;
+	border-radius: 5px;
+	text-align: center;
+	cursor: pointer;
+}
+.Button_blue:hover {
+	background-color: #4CB0F3;
+}
+.Button_red {
+	background-color: #ED0000;
+	color: white;
+	font-weight: bold;
+	border-radius: 5px;
+	text-align: center;
+	cursor: pointer;
+}
+.Button_red:hover {
+	background-color: #FF5A5A;
+}
+.Button_grey {
+	background-color: #C7C7C7;
+	color: white;
+	font-weight: bold;
+	border-radius: 5px;
+	text-align: center;
+	cursor: pointer;
+}
+.Button_grey:hover {
+	background-color: #EAEAEA;
+}
+
+.Readonly {
+	background-color: #C7C7C7;
+}

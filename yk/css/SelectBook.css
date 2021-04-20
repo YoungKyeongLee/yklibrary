@@ -1,0 +1,79 @@
+/* SelectBook css */
+.listSection {
+	margin: 0px 100px;
+}
+.listSection article{
+	display: inline-block;
+}
+.nav_art {
+	height: 500px;
+	vertical-align: top;
+}
+.list_art {
+	min-width: 700px;
+}
+.list_art .title_side_filter {
+	float:right;
+}
+.title_side_filter .Button_blue,
+.title_side_filter .Button_grey {
+	font-size: 12pt;
+	width: 100px;
+	margin-top:10px;
+	display: inline-block;
+}
+.list_art .content_title {
+	font-size: 20pt;
+	font-weight: bold;
+	float:left;
+	display:inline-block;
+}
+.list_art hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.list_art .content_clear {
+	clear:both;
+}
+.list_books,
+.list_books_name {
+	margin: 0px;
+	padding-left: 0px;
+}
+.list_art li{
+	display: inline-block;
+	width: 150px;
+	height: 30px;
+	text-align: center;
+    line-height: 30px;
+    font-size: 12pt;
+}
+.list_art .list_books_name li {
+	background-color: #EAEAEA;
+}
+.list_art .view li{
+	display: inline-block;
+}
+.list_art .pageButtonList{
+	text-align:center;
+}
+.list_art .pageButtonList a:visited{
+	color: none;
+}
+.list_art .pageButtonList a{
+	padding:1px;
+	font-size:14pt;
+	cursor: pointer;
+	color: #747474;
+}
+.list_art .pageButtonList a:link{
+	text-decoration: none;
+}
+.pageButtonList .selectPage{
+	font-weight: bold;
+	color: black !important;
+}
+.list_art .pageButtonList a:hover{
+	font-weight: bold;
+	background-color: #EAEAEA;
+}

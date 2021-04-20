@@ -1,0 +1,42 @@
+/* 로그인 css 모음 */
+.signUpSection {
+	margin: auto;
+	width: 600px;
+}
+.signUpSection .signUp_title {
+	font-size: 20pt;
+	font-weight: bold;
+}
+.signUpSection hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.signUpSection .signUp_input p,
+.signUpSection .signUp_input input,
+.signUpSection .signUp_input div div.Button_blue{
+	width: 400px;
+	height: 50px;
+	margin-right: auto;
+	margin-left: auto;
+	font-size: 12pt;
+}
+.signUp_input p {
+	display:flex;
+}
+.signUp_input p label{
+	min-width: 80px;
+	max-width: 80px;
+	margin: auto;
+}
+.signUp_input p .Button_blue {
+	font-size: 12pt;
+	height: 50px;
+	width: 100px;
+	min-width: 100px;
+	margin-left: 5px;
+	line-height: 50px;
+}
+.signUp_input div div.Button_blue {
+	font-size: 20pt;
+	line-height: 50px;
+}

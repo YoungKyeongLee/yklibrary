@@ -1,0 +1,31 @@
+.lendBookSection {
+	margin: 0px 100px;
+}
+.lendBookSection article{
+	display: inline-block;
+}
+.nav_art {
+	height: 500px;
+	vertical-align: top;
+}
+.content_art {
+	min-width: 700px;
+}
+.content_art .content_title {
+	font-size: 20pt;
+	font-weight: bold;
+}
+.content_art hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.button_List {
+	text-align: center;
+}
+.button_List div {
+	min-width: 200px;
+	height: 70px;
+	font-size : 18pt;
+	line-height: 70px;
+	display: inline-block;
+}

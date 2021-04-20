@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	/* ========================
+	 대출/반납
+	======================== */
+	set Type=%request.Get("Type")
+	set UserID=%request.Get("UserID")
+	set BookNumber=%request.Get("BookNumber")
+	
+	if (Type="InsertLendBook"){ 	  
+		set Result=$$InsertLemndBook^AdminBookLendManager(UserID,BookNumber)
+	}
+	else {
+		set UserID=" "
+		set Result=$$DeleteLendBook^AdminBookLendManager(BookNumber)
+	}
+</script>
+<html lang="ko">
+	<meta charset="utf-8">
+	<title>	YK Library - 대출/반납 </title>
+	<script language="cache" runat="server">
+	/* =========================
+	 1. 대출
+	  대출 결과에 따라 alert를 띄워주는 메서드
+	========================= */
+	</script>
+	<script type="text/javascript">
+		let result = "#(Result)#";
+		let type = "#(Type)#";
+		let msg = "";
+		
+		// 결과가 정상처리이면
+		if(result==="Y"){
+			switch(type){
+				case "InsertLendBook":
+					// 대출인 경우
+					msg = "대출처리되었습니다."
+						+ "\n대출자 이름 : " + "#($G(^EndUsr(UserID,"UserName")))#"
+						+ "\n대출자 전화번호 : " + "#($G(^EndUsr(UserID,"UserPhoneNum")))#"
+						+ "\n도서명 : " + "#($G(^BMast(BookNumber,"BookTitle")))#";
+					break;
+				case "DeleteLendBook":
+					// 반납인 경우
+					msg = "반납처리되었습니다."
+						+ "\n도서명 : " + "#($G(^BMast(BookNumber,"BookTitle")))#";
+					break;
+			}
+
+			alert(msg);
+			location.href="/yk/src/admin/booklend/LendBook.csp";
+		}
+		// 도서 대출이 정상적으로 수행되지 않았다면
+		else {
+			// 반환값에서 이유만 추출(result의 형식 es)Y^NoneUserID 이라서...)
+			let reason=result.split("^")[1];
+			msg = "대출 실패\n사유 : "
+			switch(reason){
+				case "NoneUserID":
+					msg += "일치하는 아이디가 없습니다.";
+					break;
+				case "NoneBookNumber":
+					msg += "일치하는 도서번호가 없습니다.";
+					break;
+				case "UnavailableLend":
+					msg += "대출중인 도서입니다.";
+					break;
+				case "AvailableLend":
+					msg += "대출중이지 않은 도서입니다.";
+					break;
+			}
+			alert(msg);
+			history.back();
+		}
+	</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set UserID=%request.Get("UserID")
+	set UserPW=%request.Get("UserPW")
+	
+	set Result=$$DeleteUser^UserManager(UserID,UserPW)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 회원 탈퇴 </title>
+	<script language="cache" runat="server">
+		/* ==========================
+		 회원 탈퇴 결과를 바탕으로 안내문과 함께 페이지를 이동시켜주는 부분
+		========================== */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result = "#(Result)#"
+		console.log("result" , result);
+		if(result==="Y"){
+			alert("회원탈퇴 처리되었습니다. 그동안 이용해주셔서 감사합니다");
+			location.href="/yk/src/static/main/Main.csp";
+		}
+		else {
+			let reason = result.split("^")[1];
+			switch(reason){
+				case "계정불일치":
+					alert("계정 탈퇴 실패하였습니다. 재로그인 후 시도해주세요");
+					location.href="/yk/src/static/login/Login.csp"
+					break;
+				case "도서대출중":
+					alert("반납하지 않은 도서가 있습니다.");
+					location.href="/yk/src/user/lendbookselect/SelectLendBook.csp"
+					break;
+				case "비밀번호불일치":
+					alert("비밀번호를 잘못 입력하셨습니다. 다시 확인해주세요");
+					history.back();
+					break;
+			}
+		}
+		-->
+	</script>
+</head>
+<body>
+</body>
+</html>

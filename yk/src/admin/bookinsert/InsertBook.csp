@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 신규 도서 </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SideMenu.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/InsertBook.css" />
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js" charset='euc-kr'></script>
+	<script type="text/javascript">
+		function insertBookSubmit(){
+			let inputs = document.querySelectorAll("#insertBookForm input");
+			
+			for(let i = 0; i < inputs.length; i++){
+				if(inputs[i].value === ""){
+					alert('값을 모두 입력하세요');
+					return false;
+				}
+			}
+			document.getElementById('insertBookForm').submit();
+		}
+	</script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="insertBookSection">
+		<article class="nav_art">
+			<csp:include page="/yk/src/static/include/SideMenu.csp" />
+		</article>
+		<article class="content_art">
+			<div class="content_title">신규 도서</div>
+			<hr>
+			<form action="insertBookPrss.csp" method="GET" id="insertBookForm">
+				<p><label for="BookNumber">서지번호 : </label><input id="BookNumber" name="BookNumber" type="text" readonly value="#($$GetNewBookNum^AdminBookManager())#"></p>
+				<p><label for="BookTitle">책 제목 : </label><input id="BookTitle" name="BookTitle" type="text"></p>
+				<p><label for="BookWriter">저자 : </label><input id="BookWriter" name="BookWriter" type="text"></p>
+				<p><label for="BookPublisher">출판사 : </label><input id="BookPublisher" name="BookPublisher" type="text"></p>
+				<div class="Button_blue" onclick="insertBookSubmit()">신규 도서 등록</div>
+			</form>
+		</article>	
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

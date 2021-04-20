@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	/* =============================
+	 로그아웃 루틴을 호출
+	=============================*/
+	do LogOut^LoginManager()
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 로그아웃 </title>
+	<script language="cache" runat="server">
+		/* =============================
+		 로그아웃 후 메인 페이지로 이동
+		=============================*/	
+	</script>
+	<script type="text/javascript">
+	<!--
+	alert('로그아웃 되었습니다.');
+	location.href="../main/Main.csp";
+	-->
+</script>
+</head>
+<body>
+</body>
+</html>

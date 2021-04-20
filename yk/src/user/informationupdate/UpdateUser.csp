@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set UserID=%session.Get("LoginUser")
+	quit:UserID=""
+	set UserName=^EndUsr(UserID,"UserName")
+	set UserPhoneNum=^EndUsr(UserID,"UserPhoneNum")
+	set UserClassNum=^EndUsr(UserID,"UserClassNum")
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 개인정보 수정 </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/UpdateUser.css" />
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js" charset='euc-kr'></script>
+	<script type="text/javascript" src="/yk/js/user/informationupdate/UpdateUser.js" charset='euc-kr'></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="UpdateUserSection">
+		<article class="content_art">
+			<div>
+				<div class="content_title">개인정보 수정</div>
+				<hr>
+			</div>
+			<form id="UpdateUserForm" action="/yk/src/user/informationupdate/UpdateUserPrss.csp" method="POST">
+				<p class="require">
+					<label for="UserID">아이디 : </label>
+					<input type="text" id="UserID" name="UserID" class="Readonly" value="#(UserID)#" readonly>
+				</p>
+				<p class="require">
+					<label for="UserPW">기존 비밀번호 : </label>
+					<input type="password" id="UserPW" name="UserPW">
+				</p>
+				<p class="option">
+					<label for="changeNewPWCheck"></label>
+					<input type="checkbox" id="changeNewPWCheck" name="changeNewPWCheck" onclick="clickNewPWChekcBox(event)">비밀번호 변경
+				</p>
+				<div id="changeNewPassword" class="changeNewPassword">
+					<p class="option">
+						<label for="UserNewPW">새 비밀번호 : </label>
+						<input type="password" id="UserNewPW" name="UserNewPW">
+					</p>
+					<p class="option">
+						<label for="UserNewPWConfirm">새 비밀번호 확인 : </label>
+						<input type="password" id="UserNewPWConfirm" name="UserNewPWConfirm">
+					</p>
+				</div>
+				<p class="require">
+					<label for="UserName">이름 : </label>
+					<input type="text" id="UserName" name="UserName" value="#(UserName)#">
+				</p>
+				<p class="require">
+					<label for="UserPhoneNum">전화번호 : </label>
+					<input type="text" id="UserPhoneNum" name="UserPhoneNum" value="#(UserPhoneNum)#">
+				</p>
+				<p class="require">
+					<label for="UserClassNum">학번 : </label>
+					<input type="text" id="UserClassNum" name="UserClassNum" value="#(UserClassNum)#">
+				</p>
+				<div class="Button_blue" onclick="UpdateSubmit()">수정내용 저장</div>
+			</form>
+			<div>
+				<a>회원탈퇴를 원하십니까?</a>
+				<div class="Button_grey" onclick="location.href='/yk/src/user/userdelete/DeleteUser.csp'">회원 탈퇴</div>
+			</div>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

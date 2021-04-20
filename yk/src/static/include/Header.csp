@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<header class="header">
+	<div class="header_top">
+		<div class="header_left">
+			<div class="top_1" onclick="location.href='/yk/src/static/main/Main.csp'">미르대학 도서관</div>
+			<div class="top_2">T) 02-0000-0000</div>
+		</div>
+		<div class="header_right">
+			<script language="cache" runat="server">
+				/* ======================
+				 Login 여부에 따라 우측 상단 메뉴를 보여준다.
+				 1. 회원이 로그인 했을 때 (LoginType="User")
+				  - 로그아웃 버튼과 내 정보 버튼이 파란색으로 생성
+				 2. 관리자가 로그인 했을 때 (LoginType="Admin")
+				  - 로그아웃 버튼과 내 정보 버튼이 빨간색으로 생성
+				 3. 비회원일 때
+				  - 로그인 버튼이 파란색으로 생성
+				======================*/
+				set LoginType=%session.Get("LoginType")
+				// LoginType이 회원이라면
+				if (LoginType="User") {
+					set LoginUserName=%session.Get("LoginUserName")
+					&html<
+						<div class="Button_blue" onclick="location.href='/yk/src/static/login/LogoutPrss.csp'">로그아웃</div>
+						<div class="Button_blue" onclick="location.href='/yk/src/user/informationupdate/UpdateUser.csp'">[#(LoginUserName)#]님</div>
+					>
+				}
+				// LoginType이 관리자라면
+				elseif ((LoginType="Admin")) {
+					&html<
+						<div class="Button_red" onclick="location.href='/yk/src/static/login/LogoutPrss.csp'">로그아웃</div>
+						<div class="Button_red" onclick="location.href='/yk/src/admin/informationupdate/UpdateAdmin.csp'">[관리자]님</div>
+					>
+				}
+				// 로그인 하지 않았다면
+				else {
+					&html<
+						<div class="Button_blue" onclick="location.href='/yk/src/static/login/Login.csp'">로그인</div>
+					>
+				}
+			</script>
+			
+		</div>
+	</div>
+	<div class="header_clear"></div>
+	<div class="header_bottom">
+		<div class="header_icon" onclick="location.href='/yk/src/static/main/Main.csp'"><div>Mir</div></div>
+		<input id="header_search_input" type="text" value="#($G(Word))#" placeholder=" 책 이름/저자 검색"/>
+		<div class="Button_grey" onclick="filterClickEvent('#(LoginType)#','selectAll')">검색</div>
+	</div>
+</header>

@@ -1,0 +1,32 @@
+/* Main css */
+.mainSection {
+	margin: 0px 100px;
+}
+.mainSection article{
+	display: inline-block;
+}
+.nav_art {
+	height: 500px;
+	vertical-align: top;
+}
+.content_art {
+	min-width: 700px;
+}
+.content_art .Button_grey {
+	font-size: 12pt;
+	width: 100px;
+	float:right;
+	margin-top:10px;
+}
+.content_art .content_title {
+	font-size: 20pt;
+	font-weight: bold;
+	float:left;
+}
+.content_art hr {
+	border: 2px solid grey;
+	border-top: 5px;
+}
+.content_art .content_clear {
+	clear:both;
+}

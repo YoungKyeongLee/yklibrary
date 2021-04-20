@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set Paging=5
+	set SESSIONID=%session.SessionId
+	set UserStatus=%request.Get("UserStatus")
+	set UserWord=%request.Get("UserWord")
+	set Page=%request.Get("Page")
+	
+	set:Page="" Page=1
+	
+	set AllPage=$$SelectUser^AdminUserManager(UserStatus,UserWord)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 이용자 조회 </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SideMenu.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SelectUser.css" />
+	<script type="text/javascript" src="/yk/js/static/anywhere/GetParameter.js"></script>
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js"></script>
+	<script type="text/javascript" src="/yk/js/admin/userselect/SelectUser.js" charset='euc-kr' defer></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="selectUserSection">
+		<article class="nav_art">
+			<csp:include page="/yk/src/static/include/SideMenu.csp" />
+		</article>
+		<article class="content_art">
+			<div class="content_title">이용자 조회</div>
+			<a>(N)</a>
+			<div class="title_side_filter">
+				<input type="text" id="searchUserInput" value="#(UserWord)#" placeholder="아이디,이름,전화번호"><button onclick="searchUser()">검색</button>
+				<span>검색어 : [ &nbsp #(UserWord)# &nbsp ]</span>
+				<div class="Button_blue" id="selectAll" onclick="UserfilterClickEvent('selectAll')">전체</div>
+				<div class="Button_grey" id="selectUnloanable" onclick="UserfilterClickEvent('selectUnloanable')">대출중</div>
+			</div>
+			<div class="content_clear" />
+			<hr>
+			<ul class="list_books_name">
+				<li>아이디</li>
+				<li>이름</li>
+				<li>전화번호</li>
+				<li>대출여부</li>
+			</ul>
+			<div class="view">
+				#($$HTMLSelectBook^AdminUserManager(AllPage,Page,Paging))#
+			</div>
+			<div class="pageButtonList">
+				#($$HTMLPagingSelectBookVer^AdminUserManager(AllPage,UserStatus,UserWord,Paging))#
+			</div>
+		</article>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

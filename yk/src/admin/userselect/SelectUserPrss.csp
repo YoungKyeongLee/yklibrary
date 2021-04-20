@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set UserID=%request.Get("UserID")
+	
+	set Result=$$DeleteUser^AdminUserManager(UserID)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 이용자 조회 </title>
+</head>
+<body>
+	<script type="text/javascript">
+		let result='#(Result)#';
+		
+		if(result==="Y"){
+			alert('탈퇴되었습니다.');
+		}
+		else {
+			alert('탈퇴 실패하였습니다. 새로고침 후 다시 시도해보세요.');
+		}
+		location.href="/yk/src/admin/userselect/SelectUser.csp";
+	</script>
+</body>
+</html>

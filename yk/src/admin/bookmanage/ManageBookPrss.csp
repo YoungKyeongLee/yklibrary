@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	/* =========================
+	 도서 삭제
+	========================= */
+	set BookNumber=%request.Get("BookNumber")
+	
+	set Result=$$DeleteBook^AdminBookManager(BookNumber)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 도서 관리 </title>
+	<script language="cache" runat="server">
+		/* =========================
+		 도서가 정상적으로 삭제되었는지 안내문구를 띄우고 도서관리 페이지로 이동
+		========================= */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result="#(Result)#";
+		alert(result==="Y" ? "도서가 정상적으로 삭제되었습니다." : "삭제 실패");
+		location.href="/yk/src/admin/bookmanage/ManageBook.csp";
+		-->
+	</script>
+</head>
+<body>
+</body>
+</html>

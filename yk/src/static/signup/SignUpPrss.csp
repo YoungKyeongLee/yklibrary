@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<script language="cache" runat="server" >
+		/* =========================================
+			1. Type="checkID"	아이디 중복 체크
+			2. Type="signUP"	회원가입 진행(글로벌에 저장)
+		========================================= */
+		
+		// new Type,UserID,UserPW,UserName,UserPhoneNum,UserClassNum
+		
+		set Type			=%request.Get("Type")			// 방향을 정해주는 역할 // 주석 잘 달기!
+		set UserID			=%request.Get("UserID")
+		set UserPW			=%request.Get("UserPW")
+		set UserName		=%request.Get("UserName")
+		set UserPhoneNum	=%request.Get("UserPhoneNum")
+		set UserClassNum	=%request.Get("UserClassNum")
+		set Result="N" // 초기화 해주기
+		
+		// 아이디 유효성 체크이면
+		if (Type="checkID"){
+			// 회원가입을 위한 아이디 체크
+			set Result=$$CheckUserIDYN^SignUpManager(UserID)
+		} 
+		// 회원정보 저장이면
+		elseif (Type="signUP"){
+			set Result=$$SignUpYN^SignUpManager(UserID,UserPW,UserName,UserPhoneNum,UserClassNum)
+		}
+		// 
+		else  {
+			// else 처리하기
+		}
+	</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 회원가입 </title>
+	<script language="cache" runat="server" >
+		/* =========================================
+			resultBoolean은 진행 결과인 result 값이 "Y" 이면 true, "N" 이면 false 를 갖는다.
+			1. type"checkID"	아이디 중복 체크
+				- 결과(resultBoolean)에 따라 다른 파라미터를 가지고 SignUp.csp로 이동
+			2. type"signUP"	회원가입 진행(글로벌에 저장)
+				- 결과(resultBoolean)에 따라 Main.csp(회원가입 완료) 또는 signUp.csp(회원가입 다시 진행) 로 이동
+		========================================= */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let type = "#(Type)#";
+		let result = "#(Result)#";
+		let resultBoolean = result==="Y";
+		
+		switch(type){
+		case "checkID":
+			location.href="SignUp.csp?" + (resultBoolean? "Type=AvailableUserID&UserID=#(UserID)#" : "Type=UnavailableUserID");
+			break;
+		case "signUP":
+			if(resultBoolean){
+				alert("회원가입이 완료되었습니다.");
+				location.href="../main/Main.csp"
+			}
+			else {
+				alert("아이디가 중복되었습니다. 회원가입을 다시 진행해주세요.");
+				location.href="SignUp.csp"
+			}
+			break;
+		}
+		-->
+	</script>
+</head>
+
+<body>
+	
+	
+</body>
+</html>

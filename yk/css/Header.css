@@ -1,0 +1,68 @@
+/* Header.csp ³»ºÎ css */
+header.header {
+	height: auto;
+}
+.header .header_top {
+	background-color: #EAEAEA;
+	height: 40px;
+}
+.header_top .header_left {
+	float: left;
+	margin-left: 5px;
+}
+.header_top .header_right {
+	float: right;
+	display: flex;
+}
+.header_top .header_left div {
+	display: inline-block;
+	line-height: 40px;
+}
+.header_top .header_left .top_1 {
+	font-size: 15pt;
+	font-weight: bold;
+	color: grey;
+	cursor: pointer;
+}
+.header_top .header_left .top_2 {
+	font-size: 11pt;
+	color: #C7C7C7
+}
+.header_top .header_right .Button_blue,
+.header_top .header_right .Button_red{
+	font-size:12pt;
+	width: 90px;
+	height: 30px;
+	margin: 5px;
+	line-height: 30px;
+}
+.header .header_clear {
+	clear:both;
+}
+.header_bottom {
+	margin-top: 80px;
+	text-align: center;
+	height: 80px;
+	margin-bottom: 50px;
+}
+.header .header_bottom * {
+	display: inline-block;
+}
+.header_bottom .header_icon {
+	cursor: pointer;
+}
+.header_bottom .header_icon div {
+	height: 50px;
+	font-size: 30pt;
+}
+.header_bottom input {
+	margin-right: 15px;
+	margin-left: 15px;
+	width: 500px;
+	height: 50px;
+}
+.header_bottom .Button_grey {
+	width: 90px;
+	height: 40px;
+	line-height: 40px;
+}

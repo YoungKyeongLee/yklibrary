@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set Paging=5
+	set SESSIONID=%session.SessionId
+	set BookStatus=%request.Get("BookStatus")
+	set Word=%request.Get("Word")
+	set Page=%request.Get("Page")
+
+	set:Page="" Page=1
+
+	set AllPage=$$SelectBook^BookSelectManager(BookStatus,Word)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - List </title>
+	<link rel="stylesheet" type="text/css" href="/yk/css/Header.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Footer.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/Static.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SideMenu.css" />
+	<link rel="stylesheet" type="text/css" href="/yk/css/SelectBook.css" />
+	<script type="text/javascript" src="/yk/js/static/anywhere/GetParameter.js"></script>
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBook.js"></script>
+	<script type="text/javascript" src="/yk/js/static/bookselect/SelectBookInit.js" defer></script>
+</head>
+<body>
+	<csp:include page="/yk/src/static/include/Header.csp" />
+	<section class="listSection">
+		<article class="nav_art">
+			<csp:include page="/yk/src/static/include/SideMenu.csp" />
+		</article>
+		<article class="list_art">
+			<div class="content_title">도서 조회</div>
+			<a>(#(AllPage)#)</a>
+			<div class="title_side_filter">
+				<span>검색어 : [ &nbsp #(Word)# &nbsp ]</span>
+				<div class="Button_blue" id="selectAll" onclick="filterClickEvent('#(LoginType)#','selectAll')">전체</div>
+				<div class="Button_grey" id="selectLoanable" onclick="filterClickEvent('#(LoginType)#','selectLoanable')">대출가능</div>
+			</div>
+			<div class="content_clear" />
+			<hr>
+			<ul class="list_books_name">
+				<li>도서명</li>
+				<li>저자</li>
+				<li>출판사</li>
+				<li>대출 상태</li>
+			</ul>
+			<div class="view">
+				#($$HTMLSelectBook^BookSelectManager(AllPage,Page,Paging))#
+			</div>
+			<div class="pageButtonList">
+				#($$HTMLPagingSelectBookVer^BookSelectManager(AllPage,BookStatus,Word,Paging,"Static"))#
+			</div>
+		</article>
+	</section>
+	<csp:include page="/yk/src/static/include/Footer.csp" />
+</body>
+</html>

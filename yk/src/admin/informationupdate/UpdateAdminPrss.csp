@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<script language="cache" runat="server">
+	set AdminID=%request.Get("AdminID")
+	set AdminPW=%request.Get("AdminPW")
+	set AdminNewPW=%request.Get("AdminNewPW")
+	
+	set Result=$$UpdateInformation^AdminManager(AdminID,AdminPW,AdminNewPW)
+</script>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>	YK Library - 정보 수정 </title>
+	<script language="cache" runat="server">
+		/* ===============================
+		 관리자 정보 수정 결과를 기준으로 안내문과 페이지이동
+		=============================== */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result="#(Result)#";
+		
+		if(result==="Y") {
+			alert("정상적으로 수정되었습니다.");
+			location.href="/yk/src/static/main/Main.csp"
+		}
+		else {
+			let reason = result.split("^")[1];
+			
+			switch(reason){
+				case "계정불일치":
+					alert("개인정보 수정에 실패하였습니다. 재로그인 후 시도해주세요");
+					location.href="/yk/src/static/login/Login.csp"
+					break;
+				case "비밀번호불일치":
+					alert("비밀번호를 잘못 입력하셨습니다. 다시 확인해주세요");
+					history.back();
+					break;
+			}
+		}
+		-->
+	</script>
+</head>
+<body>
+</body>
+</html>

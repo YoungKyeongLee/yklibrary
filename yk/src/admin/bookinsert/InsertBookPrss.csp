@@ -1,0 +1,47 @@
+<script language="cache" runat="server">
+	/* ====================================
+	 신규 도서를 저장하는 메서드
+	 BookNumber : 서지번호
+	 BookTitle : 책 제목
+	 BookWriter : 저자
+	 BookPublisher : 출판사
+	==================================== */
+	set BookNumber=%request.Get("BookNumber")
+	set BookTitle=%request.Get("BookTitle")
+	set BookWriter=%request.Get("BookWriter")
+	set BookPublisher=%request.Get("BookPublisher")
+	
+	set Result=$$InsertBookYN^AdminBookManager(BookNumber,BookTitle,BookWriter,BookPublisher)
+</script>
+<html>
+<head>
+	<title>	YK Library - 신규 도서 </title>
+	<script language="cache" runat="server">
+	/* ===============================
+	 도서 등록 결과를 뷰로 보여주고, 신규 도서 페이지로 다시 이동
+	 1. 신규 도서 등록 정상 등록시 result="Y"
+	  - 정상 등록 안내
+	 2. 중복 등록으로 인해 서지번호 중복 시 result="N^[신규 발급 후 저장된 서지번호]"
+	  - 중복으로 인해 재발급 안내
+	=============================== */
+	</script>
+	<script type="text/javascript">
+		<!--
+		let result="#(Result)#";
+		let msg="신규도서등록완료\n";
+		
+		if(result === "Y"){
+			msg += "서지번호 : " + "#(BookNumber)#" + "\n";
+		}
+		else {
+			msg += "번호 중복으로 인해 서지번호 재발급 후 정상등록\n서지번호 : " + (result.split("^")[1]) + "\n";
+		}
+		
+		alert(msg);
+		location.href="/yk/src/admin/bookinsert/insertBook.csp";
+		-->
+	</script>
+</head>
+<body>
+</body>
+</html>
