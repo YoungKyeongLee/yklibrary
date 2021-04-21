@@ -92,3 +92,11 @@
 .list_books .deleteUser:link{
 	text-decoration: none;
 }
+.list_books #selectUserID{
+	cursor: pointer;
+	font-weight: bold;
+	color: orange;
+}
+.list_books #selectUserID:hover{
+	color: red;
+}

@@ -48,7 +48,7 @@ function aboutUser(event){
 	}
 	else {
 		let arrList = list.split("\\n");
-		for(let i = 0; i < arrList.length; i++) {
+		for(let i = 1; i < arrList.length; i++) {
 			msg += "\n" + arrList[i];
 		}
 	}
@@ -60,4 +60,14 @@ if(getParameter()["UserStatus"] === "selectUnloanable"){
 }
 else {
 	changeButtonColor('selectAll');
+}
+
+let viewList = document.querySelectorAll('.view .list_books');
+
+for(let i = 0; i < viewList.length; i++){
+	let li = viewList[i].children[3].innerHTML;
+	if(li.length>8){
+		console.log(li, li.length);
+		viewList[i].children[3].innerHTML = li.substring(0,8) + "...";
+	}
 }

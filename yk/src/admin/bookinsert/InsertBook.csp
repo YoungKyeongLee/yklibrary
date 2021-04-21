@@ -33,10 +33,10 @@
 			<div class="content_title">신규 도서</div>
 			<hr>
 			<form action="insertBookPrss.csp" method="GET" id="insertBookForm">
-				<p><label for="BookNumber">서지번호 : </label><input id="BookNumber" name="BookNumber" type="text" readonly value="#($$GetNewBookNum^AdminBookManager())#"></p>
-				<p><label for="BookTitle">책 제목 : </label><input id="BookTitle" name="BookTitle" type="text"></p>
-				<p><label for="BookWriter">저자 : </label><input id="BookWriter" name="BookWriter" type="text"></p>
-				<p><label for="BookPublisher">출판사 : </label><input id="BookPublisher" name="BookPublisher" type="text"></p>
+				<p><label for="BookNumber">서지번호 : </label><input type="text" id="BookNumber" name="BookNumber" class="Readonly" readonly value="#($$GetNewBookNum^AdminBookManager())#"></p>
+				<p><label for="BookTitle">책 제목 : </label><input type="text" id="BookTitle" name="BookTitle"></p>
+				<p><label for="BookWriter">저자 : </label><input type="text" id="BookWriter" name="BookWriter"></p>
+				<p><label for="BookPublisher">출판사 : </label><input type="text" id="BookPublisher" name="BookPublisher"></p>
 				<div class="Button_blue" onclick="insertBookSubmit()">신규 도서 등록</div>
 			</form>
 		</article>	
