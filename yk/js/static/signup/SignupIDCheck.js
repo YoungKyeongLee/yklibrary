@@ -9,9 +9,6 @@ function init(){
 	  - alert로 사용할 수 없음을 안내하고, 아이디 입력란에 포커스를 준다.
 	================================= */
 	<!--
-	
-	console.log('test');
-	
 	let param=getParameter();
 	let type = param["Type"];
 	let userIDInput = document.getElementById('UserID');
@@ -28,7 +25,6 @@ function init(){
 		userIDInput.focus();
 	}
 	
-	
 	-->
 }
 function settingInputBox(userID){
@@ -38,8 +34,6 @@ function settingInputBox(userID){
 	 			비밀번호,	비밀번호 확인,		이름,		휴대폰번호,		학번
 	================================= */
 	<!--
-	
-	
 	let inputBoxs = document.querySelectorAll('.signUp_input input');
 	let userIDInput = inputBoxs[0];
 	
@@ -52,10 +46,17 @@ function settingInputBox(userID){
 		input.removeAttribute('readonly');
 		input.removeAttribute('class');
 	}
-	
-	
 	-->
 }
+function checkValidate(validate, userid, message) {
+       if(validate.test(userid.value)) {
+           return true;
+       }
+       	alert(message);
+       	userid.value = "";
+       	userid.focus();
+       	//return false;
+   }
 function checkUserID(){
 	/* =================================
 	 아이디 입력 후 중복확인 버튼을 누르면 실행되는 함수
@@ -63,14 +64,14 @@ function checkUserID(){
 	================================= */
 	<!--
 	
-	
 	let userid = document.getElementById('UserID').value;
-	if(userid!=='')
-		location.href='SignUpPrss.csp?Type=checkID&UserID='+userid;
-	else
+	
+	if(userid=='')
 		alert('아이디를 입력해주세요.');
-		
-		
+	else{
+		location.href='SignUpPrss.csp?Type=checkID&UserID='+userid;
+	}
+	
 	-->
 }
 

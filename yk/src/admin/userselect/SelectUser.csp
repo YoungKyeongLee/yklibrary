@@ -5,10 +5,18 @@
 	set UserStatus=%request.Get("UserStatus")
 	set UserWord=%request.Get("UserWord")
 	set Page=%request.Get("Page")
-	
+	;
+	set AdminID=%session.Get("LoginAdmin")
+	;
 	set:Page="" Page=1
-	
+	;
 	set AllPage=$$SelectUser^AdminUserManager(UserStatus,UserWord)
+</script>
+<script type = "text/javascript">
+	if ("#(AdminID)#"==""){
+		alert("로그인이 필요한 페이지 입니다.");
+		location.href = "/yk/src/static/main/Main.csp"
+	}
 </script>
 <html lang="ko">
 <head>

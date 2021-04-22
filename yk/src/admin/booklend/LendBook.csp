@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<script language="cache" runat="server">
+//세션이 끊긴 경우 로그인페이지로 이동 - 유성근 2021.04.22
+	set AdminID=%session.Get("LoginAdmin")
+</script>
+<script type = "text/javascript">
+	if ("#(AdminID)#"==""){
+		alert("로그인이 필요한 페이지 입니다.");
+		location.href = "/yk/src/static/main/Main.csp"
+	}
+</script>
 <html lang="ko">
 <head>
 	<meta charset="utf-8">
