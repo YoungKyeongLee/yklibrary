@@ -1,10 +1,25 @@
 <!DOCTYPE html>
+<script language="cache"  method="OnPreHTTP" arguments="" returntype="%Boolean">
+	quit $$RedirectDependsOnType^StaticManager("User")
+</script>
 <script language="cache" runat="server">
+	/*
+		[대출 도서 목록]
+		이용자가 대출,반납 했던 히스토리를 보여준다.
+		
+		[변수]
+		Paging : 한 페이지 당 리스트 개수
+		UserID : 이용자 이이디
+		AllPage : 전체 리스트 개수
+		Page : 현재 페이지
+	*/
 	set Paging=5
 	set UserID=%session.Get("LoginUser")
 	quit:UserID=""
+	// 필터해주는 부분
 	set AllPage=$$GetLendBookCount^BookSelectManager(UserID)
 	set Page=%request.Get("Page")
+	// 페이지가 없다면 1
 	set:Page="" Page=1
 </script>
 <html lang="ko">
@@ -38,9 +53,11 @@
 				<li>상태</li>
 			</ul>
 			<div class="view">
+				<!-- 리스트 출력 -->
 				#($$HTMLSelectLendBook^BookSelectManager(UserID,AllPage,Page))#
 			</div>
 			<div class="pageButtonList">
+				<!-- 페이지 번호 출력 -->
 				#($$HTMLPagingSelectLendBookVer^BookSelectManager(AllPage,Paging))#
 			</div>
 		</article>

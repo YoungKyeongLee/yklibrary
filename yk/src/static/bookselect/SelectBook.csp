@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<script language="cache"  method="OnPreHTTP" arguments="" returntype="%Boolean">
+	quit $$RedirectDependsOnType^StaticManager("'Admin")
+</script>
 <script language="cache" runat="server">
 	set Paging=5
 	set SESSIONID=%session.SessionId
@@ -49,7 +52,7 @@
 				#($$HTMLSelectBook^BookSelectManager(AllPage,Page,Paging))#
 			</div>
 			<div class="pageButtonList">
-				#($$HTMLPagingSelectBookVer^BookSelectManager(AllPage,BookStatus,Word,Paging,"Static"))#
+				#($$HTMLPagingSelectBookVer^BookSelectManager(AllPage,BookStatus,Word,Paging,Page))#
 			</div>
 		</article>
 	</section>

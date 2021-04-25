@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+<script language="cache"  method="OnPreHTTP" arguments="" returntype="%Boolean">
+	quit $$RedirectDependsOnType^StaticManager("User")
+</script>
 <script language="cache" runat="server">
 	set UserID=%session.Get("LoginUser")
-	quit:UserID=""
 </script>
 <html lang="ko">
 <head>

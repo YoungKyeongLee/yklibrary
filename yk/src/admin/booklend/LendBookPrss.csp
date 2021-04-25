@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <script language="cache" runat="server">
 	/* ========================
-	 대출/반납
+	 [대출/반납]
+	 대출 또는 반납을 처리해줍니다.
+	 
+	 [지역변수]
+	 Type 		: 어떤 처리를 할 지 구분자 역할
+	 				=> 대출 : InsertLendBook
+	 				=> 반납 : DeleteLendBook
+	 UserID 	: 이용자 아이디
+	 BookNumber : 서지번호
+	 
+	 [기능]
+	 대출
 	======================== */
 	set Type=%request.Get("Type")
 	set UserID=%request.Get("UserID")
 	set BookNumber=%request.Get("BookNumber")
-	
+	set BookTitle=^BMast(BookNumber,"BookTitle")
+	;
+	// 1. 대출
 	if (Type="InsertLendBook"){ 	  
 		set Result=$$InsertLemndBook^AdminBookLendManager(UserID,BookNumber)
+		set UserName=^EndUsr(UserID,"UserName")
+		set UserPhoneNum=^EndUsr(UserID,"UserPhoneNum")
 	}
+	// 2. 반납
 	else {
 		set UserID=" "
 		set Result=$$DeleteLendBook^AdminBookLendManager(BookNumber)
@@ -25,6 +41,7 @@
 	========================= */
 	</script>
 	<script type="text/javascript">
+	<!--
 		let result = "#(Result)#";
 		let type = "#(Type)#";
 		let msg = "";
@@ -35,14 +52,14 @@
 				case "InsertLendBook":
 					// 대출인 경우
 					msg = "대출처리되었습니다."
-						+ "\n대출자 이름 : " + "#($G(^EndUsr(UserID,"UserName")))#"
-						+ "\n대출자 전화번호 : " + "#($G(^EndUsr(UserID,"UserPhoneNum")))#"
-						+ "\n도서명 : " + "#($G(^BMast(BookNumber,"BookTitle")))#";
+						+ "\n대출자 이름 : " + "#($G(UserName))#"
+						+ "\n대출자 전화번호 : " + "#($G(UserPhoneNum))#"
+						+ "\n도서명 : " + "#($G(BookTitle))#";
 					break;
 				case "DeleteLendBook":
 					// 반납인 경우
 					msg = "반납처리되었습니다."
-						+ "\n도서명 : " + "#($G(^BMast(BookNumber,"BookTitle")))#";
+						+ "\n도서명 : " + "#($G(BookTitle))#";
 					break;
 			}
 
@@ -53,7 +70,9 @@
 		else {
 			// 반환값에서 이유만 추출(result의 형식 es)Y^NoneUserID 이라서...)
 			let reason=result.split("^")[1];
-			msg = "대출 실패\n사유 : "
+			
+			msg = type === "InsertLendBook" ? "대출 실패\n사유 : " : "반납 실패\n사유 : ";
+			
 			switch(reason){
 				case "NoneUserID":
 					msg += "일치하는 아이디가 없습니다.";
@@ -68,9 +87,11 @@
 					msg += "대출중이지 않은 도서입니다.";
 					break;
 			}
+			
 			alert(msg);
 			history.back();
 		}
+	-->
 	</script>
 </head>
 <body>

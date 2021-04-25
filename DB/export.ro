@@ -1,0 +1,1472 @@
+Cache for Windows^MAC^routine output by %apiRTN^^~Format=Cache.S~^KSC5601
+%RO on 23 Apr 2021 05:49:39PM
+AdminBookLendManager^MAC^^65856,64245.68375^0
+AdminBookLendManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 22일 [이전수정 : 2020년 4월 21일 ]
+	; 용도 : 도서 대출, 반납
+	;=========================
+	quit
+	;
+	;
+	;
+InsertLemndBook(UserID, BookNumber)
+	/* =========================
+	 [도서 대출]
+	 대출 가능한지 검사한 후 처리 결과를 반환합니다.
+	 
+	 [매개변수]
+	 UserID 		: 이용자 아이디
+	 BookNumber 	: 서지번호
+	 
+	 [지역변수]
+	 LendDate 		: 대출 날짜
+	 LendNum 		: 대출 인덱스
+	 Result 		: 결과
+	 BookTitle 		: 책 제목
+	 BookWriter 	: 저자
+	 BookPublisher 	: 출판사
+	 
+	 [기능 및 반환값]
+	 1. 존재하지 않는 아이디			: [반환값] N^NoneUserID
+	 2. 존재히지 않는 도서번호			: [반환값] N^NoneBookNumber
+	 3. 대출중인 도서				: [반환값] N^UnavailableLend
+	 4. 대출 가능한 상태				: [반환값] Y
+	 	 - ^CHisR 에 대출정보 입력
+ 		 - ^HistoryUsr 에 히스토리 저장
+	========================= */
+	lock ^CHisR,^BMast,^EndUsr,^HistoryUsr
+	;
+	new LendDate,LendNum,Result,BookTitle,BookWriter,BookPublisher
+	;
+	// 대출일 생성
+	set LendDate=$ZD($H,3)
+	;
+	// 1. 존재하지 않는 아이디면
+	if ('$D(^EndUsr(UserID))) {
+		set Result="N^NoneUserID"
+	}
+	// 2. 존재하지 않는 도서번호이면
+	elseif ('$D(^BMast(BookNumber))) {
+		set Result="N^NoneBookNumber"
+	}
+	// 3. 대출중인 도서이면
+	elseif ($D(^CHisR("R",BookNumber))) {
+		set Result="N^UnavailableLend"
+	}
+	// 4. 대출 진행
+	else  {
+		// 4-1. 대출 도서 정보 저장
+		set ^CHisR("R",BookNumber)=UserID
+		set ^CHisR("R",BookNumber,UserID)=LendDate
+		set ^CHisR("U",UserID,BookNumber)=LendDate
+		;
+		// 4-2. 회원 히스토리 저장
+		// 4-2-1. 회원의 신규 대출 인덱스 구하기
+		set LendNum=$$GetNewLendNum^AdminBookLendManager(UserID,LendDate)
+		;
+		// 4-2-2. 도서 정보 가져오기
+		set BookTitle=^BMast(BookNumber,"BookTitle")
+		set BookWriter=^BMast(BookNumber,"BookWriter")
+		set BookPublisher=^BMast(BookNumber,"BookPublisher")
+		;
+		// 4-2-3 도서 정보를 대출 히스토리에 저장
+		set ^HistoryUsr(UserID,LendDate,LendNum,"BookNumber")=BookNumber
+		set ^HistoryUsr(UserID,LendDate,LendNum,"ReturnDate")="-"
+		set ^HistoryUsr(UserID,LendDate,LendNum,"BookStatus")="대출중"
+		;
+		set Result="Y"
+	}
+	;
+	lock ^CHisR,^BMast,^EndUsr,^HistoryUsr
+	;
+	quit Result
+	;
+	;
+	;
+DeleteLendBook(BookNumber)
+	/* =========================
+	 [도서 반납]
+	 반납이 가능한지 검사한 후 처리 결과를 반환합니다.
+	 
+	 [매개변수]
+	 BookNumber : 서지번호
+	 
+	 [지역변수]
+	 UserID 	: 이용자 아이디
+	 LendDate 	: 대출 날짜
+	 LendNum 	: 대출 인덱스
+	 ReturnDate : 반납 날짜
+	 
+	 [기능 및 반환값]
+	 1. 존재하지 않는 도서번호			: [반환값] N^NoneBookNumber
+	 2. 대출중이지 않는 도서			: [반환값] N^AvailableLend
+	 3. 반납 가능한 상태				: [반환값] Y
+	 	- ^CHisR 에 대출정보 삭제
+	 	- ^HistoryUsr 에 히스토리 저장
+	========================= */
+	lock ^CHisR,^BMast,^EndUsr
+	;
+	new UserID,LendDate,LendNum,ReturnDate
+	;
+	// 반납날짜 생성
+	set ReturnDate=$ZD($H,3)
+	;
+	// 1. 존재하지 않는 도서번호이면
+	if ($D(^BMast(BookNumber))'=10) {
+		set Result="N^NoneBookNumber"
+	}
+	// 2. 대출중이지 않는 도서이면
+	elseif ($D(^CHisR("R",BookNumber))=0) {
+		set Result="N^AvailableLend"
+	}
+	// 3. 반납 진행
+	else  {
+		// 3-1. 대출중인 도서를 빌린 이용자 아이디, 대출 날짜, 대출 인덱스 구하기
+		set UserID=^CHisR("R",BookNumber)
+		set LendDate=^CHisR("R",BookNumber,UserID)
+		set LendNum=$$GetFindLendNum^AdminBookLendManager(UserID,LendDate,BookNumber)
+		;
+		// 3-2. 대출 도서 정보 삭제(반납처리)
+		k ^CHisR("R",BookNumber)
+		k ^CHisR("R",BookNumber,UserID)
+		k ^CHisR("U",UserID,BookNumber)
+		;
+		// 3-3. 이용자 히스토리 수정
+		set ^HistoryUsr(UserID,LendDate,LendNum,"ReturnDate")=ReturnDate
+		set ^HistoryUsr(UserID,LendDate,LendNum,"BookStatus")="반납완료"
+		;
+		set Result="Y"
+	}
+	;
+	lock ^CHisR,^BMast,^EndUsr
+	;
+	quit Result
+	;
+	;
+	;
+GetNewLendNum(UserID,LendDate)
+	/* ==========================
+	 [신규 대출 인덱스 생성]
+	 당일 신규 대출 인덱스를 생성하고 반환합니다.
+	 (^HistoryUsr에 사용하는 대출 인덱스)
+	 
+	 [매개변수]
+	 UserID 	: 이용자 아이디
+	 LendDate 	: 대출 날짜
+	 
+	 [지역변수]
+	 LastIndex 	: 마지막 대출 인덱스
+	 
+	 [기능 및 반환값]
+	 1. 오늘 처음 대출한다면		: [반환값] 1
+	 2. 오늘 2번째 이상 대출한다면 	: [반환값] 마지막 대출 인덱스 + 1
+	========================== */
+	new LastLendNum,LendNum
+	;
+	// 마지막 대출 인덱스 가져오기
+	set LastLendNum=$ZP(^HistoryUsr(UserID,LendDate,""))
+	;
+	// 신규 대출 인덱스 생성
+	set LendNum=$S(LastLendNum="":1,LastLendNum>=1:LastLendNum+1)
+	;
+	quit LendNum
+	;
+	;
+	;
+GetFindLendNum(UserID,LendDate,BookNumber)
+	/* =======================
+	 [대출 인덱스 찾기]
+	 이용자 아이디, 대출일, 서지번호를 이용해 대출 인덱스를 찾아 반환해줍니다.
+	 
+	 [매개변수]
+	 UserID 	: 이용자 아이디
+	 LendDate 	: 대출 날짜
+	 BookNumber : 서지번호
+	 
+	 [지역변수]
+	 LendNum 	: 대출 인덱스
+	 
+	 [기능 및 반환값]
+	 1. 이용자 아이디, 대출 날짜, 서지번호와 일치하는 대출 인덱스가 있다면 : [반환값] 대출 인덱스
+	 2. 일치하는 대출 인덱스가 없다면 : [반환값] ""
+	======================= */
+	new LendNum
+	set LendNum=""
+	;
+	for {
+		set LendNum=$O(^HistoryUsr(UserID,LendDate,LendNum))
+		quit:((^HistoryUsr(UserID,LendDate,LendNum,"BookNumber")=BookNumber)||(LendNum=""))
+	}
+	;
+	quit LendNum
+	;
+	;
+	;
+.
+
+AdminBookManager^MAC^^65856,64261.147161^0
+AdminBookManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 22일 [이전수정 : 2020년 4월 21일 ]
+	; 용도 : 관리자 전용 도서 설정
+	;=========================
+	quit
+	;
+	;
+	;
+GetNewBookNum()
+	/* ============================
+	 [서지번호 생성]
+	 마지막 서지번호를 조회해 그 다음 번호를 신규생성합니다.
+	 (B0001, B0002, ...)
+	 
+	 [매개변수]
+	 -
+	 
+	 [지역변수]
+	 LastBookNumber : 마지막 서지번호
+	 NewNumber : 신규 숫자[서지번호 내 숫자]
+	 NewBookNumber : 신규 서지번호
+	 
+	 [기능 및 반환값]
+	 [반환값] 신규 서지번호
+	============================ */
+	new LastBookNumber,NewNumber,NewBookNumber
+	;
+	// 1. 마지막 서지번호 구하기	
+	set LastBookNumber=$ZP(^BMast(""))
+	;
+	// 2. 신규 서지번호 만들기
+	// 2-1. 마지막 서지번호의 숫자 부분만 가져와 + 1 해준다.
+	set NewNumber=$P(LastBookNumber,"B",2)+1
+	;
+	// 2-2. 숫자를 0000 형태로 바꾸어준다.(0001, 0002 ...)
+	set NewNumber=$TR($J(NewNumber,4)," ","0")
+	;
+	// 2-3. 서지번호 문자와 신규 숫자를 합쳐준다.
+	set NewBookNumber="B"_NewNumber
+	;
+	quit NewBookNumber
+	;
+	;
+	;
+InsertBookYN(BookNumber,BookTitle,BookWriter,BookPublisher)
+	/* ===========================
+	 [신규 도서 등록]
+	 신규 서지번호가 유효한지 확인 후 신규 도서 정보 저장하고 결과 반환
+	 
+	 [매개변수]
+	 BookNumber : 서지번호
+	 BookTitle : 책 이름
+	 BookWriter : 저자
+	 BookPublisher : 출판사
+	 
+	 [지역변수]
+	 Result : 결과
+	 
+	 [기능 및 반환값]
+	 1. 신규 서지번호라면					: [반환값] Y
+	 2. 중복된 서지번호라면	 신규 서지번호 재발급	: [반환값] N^신규서지번호
+	  => 즉 서지번호가 중복이라면 신규 발급 후 도서에 저장된다.
+	  
+	 (1~2 공통처리)	: 신규도서 ^BMast에 저장
+	=========================== */
+	lock ^BMast
+	;
+	new Result
+	;
+	// 1. 서지번호가 신규번호라면
+	if ( $D(^BMast(BookNumber))=0) {
+		set Result="Y"
+	}
+	// 2. 서지번호가 중복된다면
+	else {
+		// 2-1. 서지번호 재발급
+		set BookNumber=$$GetNewBookNum^AdminBookManager()
+		;
+		set Result="N^"_BookNumber
+	}
+	;
+	// 신규 도서정보 저장
+	set ^BMast(BookNumber,"BookTitle")=BookTitle
+	set ^BMast(BookNumber,"BookWriter")=BookWriter
+	set ^BMast(BookNumber,"BookPublisher")=BookPublisher
+	;
+	lock ^BMast
+	;
+	quit Result
+	;
+	;
+	;
+DeleteBook(BookNumber)
+	/* ===========================
+	 [도서 삭제]
+	 대출중인 도서인지 확인하고 삭제 처리 후 결과를 반환합니다.
+	 
+	 [매개변수]
+	 BookNumber : 서지번호
+	 
+	 [지역변수]
+	 UserID : 이용자 아이디
+	 LendDate : 대출 날짜
+	 LendNum : 대출 인덱스
+	 Result : 결과
+	 
+	 [기능 및 반환값]
+	 1. 서지번호가 존재한다면							: [반환값] Y
+		1-1. ^BMast의 도서 정보를 ^DeleteBMast에 이동
+	 	1-2. 대출중이라면
+	 		1-2-1. 대출중인 이용자 아이디와 대출날짜, 대출 인덱스 구하기
+	 		1-2-2. 대출정보 삭제(^CHisR)
+	 		1-2-3. 이용자 히스토리의 도서 상태 수정(^HistoryUsr)
+	 2. 존재하지 않는 서지번호라면						: [반환값] N
+	=========================== */
+	lock ^BMast,^CHisR
+	;
+	new UserID,LendDate,LendNum,Result
+	;
+	// 1. 서지번호가 존재한다면
+	if ($D(^BMast(BookNumber))) {
+		// 1-1. 해당 도서 정보를 삭제 도서 정보로 이동 
+		merge ^DeleteBMast(BookNumber)=^BMast(BookNumber)
+		kill ^BMast(BookNumber)
+		;
+		// 1-2. 해당 도서가 대출중이라면
+		if ($D(^CHisR("R",BookNumber))){
+			// 1-2-1. 대출중인 이용자 아이디와 대출날짜, 대출 인덱스 구하기
+			set UserID=^CHisR("R",BookNumber)
+			set LendDate=^CHisR("U",UserID,BookNumber)
+			set LendNum=$$GetFindLendNum^AdminBookLendManager(UserID,LendDate,BookNumber)
+			;
+			// 1-2-2. 대출정보 삭제
+			k ^CHisR("R",BookNumber)
+			k ^CHisR("U",UserID,BookNumber)
+			;
+			// 1-2-3. 이용자 히스토리의 도서 상태 수정
+			set ^HistoryUsr(UserID,LendDate,LendNum,"BookStatus")="폐기 도서"
+		}
+		set Result="Y"
+	}
+	// 2. 존재하지 않는 서지번호라면
+	else {
+		set Result="N"
+	}
+	;
+	lock ^BMast,^CHisR
+	;
+	quit Result
+	;
+	;
+	;
+
+AdminManager^MAC^^65856,64267.89795^0
+AdnminManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 22일 [이전수정 : 2020년 4월 21일 ]
+	; 용도 : 관리자 계정 수정
+	;=========================
+	quit
+	;
+	;
+	;
+UpdateInformation(AdminID,AdminPW,AdminNewPW)
+	/* ===============================
+	 [관리자 정보 수정]
+	 관리자 비밀번호를 수정해줍니다.
+	 
+	 [매개변수]
+	 AdminID 	: 관리자 아이디
+	 AdminPW 	: 관리자 비밀번호
+	 AdminNewPW : 관리자 새 비밀번호
+	 
+	 [지역변수]
+	 LoginAdmin : 로그인 되어있는 관리자 계정 아이디
+	 AdminOriginalPW : 관리자 기존 비밀번호
+	 Result : 결과
+	 
+	 [기능 및 반환값]
+	 1. Session에 저장된 로그인 아이디와 매개변수로 받아온 아이디가 다르다면	: [반환값] N^계정불일치
+	 	- 로그아웃(현재 세션 만료)
+	 2. 기존 비밀번호가 틀렸다면									: [반환값] N^비밀번호불일치
+	 3. 수정 진행											: [반환값] Y
+	 	- 비밀번호 수정
+	 	- 로그인 계정 갱신
+	=============================== */
+	;
+	lock ^Admin
+	;
+	new LoginAdmin,AdminOriginalPW,Result
+	set LoginAdmin=%session.Get("LoginAdmin")
+	set AdminOriginalPW=^Admin(LoginAdmin)
+	;
+	// 1. 로그인한 계정과 매개변수 ID가 다르면
+	if (LoginAdmin'=AdminID){
+		set Result="N^계정불일치"
+		// 로그아웃
+		do LogOut^LoginManager()
+	}
+	// 2. 기존비밀번호와 입력한 비밀번호가 다르면
+	elseif (AdminOriginalPW'=AdminPW){
+		set Result="N^비밀번호불일치"
+	}
+	// 3. 수정 진행
+	else {
+		// 3-1. 비밀번호 수정
+		set ^Admin(AdminID)=AdminNewPW
+		;
+		// 3-2. 재로그인(갱신)
+		do LogInYN^LoginManager(AdminID,AdminNewPW)
+		;
+		set Result="Y"
+	}
+	;
+	lock ^Admin
+	;
+	quit Result
+	;
+	;
+	;
+
+AdminUserManager^MAC^^65857,54819.016975^0
+AdnminUserManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 22일 [이전수정 : 2020년 4월 21일 ]
+	; 용도 : 관리자 전용 이용자 설정
+	;=========================
+	quit
+	;
+	;
+	;
+SelectUser(UserStatus,UserWord)
+	/* =======================
+	 [이용자 조회 및 검색]
+	 이용자를 조회,검색,필터 후 ^CacheTempFilter에 저장하고, 리스트 개수를 반환합니다.
+	 
+	 [매개변수]
+	 UserStatus 	: 이용자 대출 여부(전체,대출중)
+	 UserWord 		: 이용자 검색어(아이디,이름,전화번호)
+	 	=> 검색어가 없는 경우 ""를 입력
+	 
+	 [지역변수]
+	 UserID 		: 이용자 아이디
+	 UserName 		: 이용자 이름
+	 UserPhoneNum 	: 이용자 휴대폰 번호
+	 Count 			: 리스트 총 개수
+	 
+	 [기능 및 반환값]
+	 [반환값] 리스트 총 개수
+	======================= */
+	new UserID,UserName,UserPhoneNum,Count
+	set Count=0
+	;
+	// 이전 데이터와 중복되어 저장될 수 있으니 확인차 삭제해준다.
+	kill ^CacheTempFilter(SESSIONID)
+	;
+	set UserID=""
+	for {
+		set UserID=$O(^EndUsr(UserID))
+		quit:(UserID="")
+		;
+		// 검색어와 비교하기 위해 아이디, 이름, 전화번호를 구한다.
+		set UserName=^EndUsr(UserID,"UserName")
+		set UserPhoneNum=^EndUsr(UserID,"UserPhoneNum")
+		;
+		//검색어가 없거나 아이디, 이름, 전화번호에 검색어가 포함된다면
+		if ((UserWord="")||(UserID[UserWord)||(UserName[UserWord)||(UserPhoneNum[UserWord)){
+			;
+			// 만약 필터가 대출중 이라면 대출중이지 않을 때 더이상 진행하지 않고 continue 해준다.
+			continue:(UserStatus="selectUnloanable")&&('$D(^CHisR("U",UserID)))
+			;
+			// 데이터 저장 및 리스트 개수 카운트
+			set ^CacheTempFilter(SESSIONID,UserID)=""
+			set Count=Count+1
+		}
+	}
+	;
+	quit Count
+	;
+	;
+	;
+HTMLSelectBook(AllPage,Page,Paging)
+	/* =======================
+	[이용자 정보 출력]
+	이용자의 정보를 매개변수로 받아온 페이징 방식을 적용해 출력합니다.
+	
+	[매개변수]
+	 AllPage 		: 페이지의 끝번호
+	 Page			: 현재 페이지
+	 paging			: 한 페이지에 보여줄 리스트의 갯수
+	
+	[지역변수]
+	 PageValue		: 페이징 계산 결과
+	 StartNum		: 시작 인덱스
+	 EndNum			: 끝 인덱스
+	 UserID 		: 이용자 아이디
+	 UserName 		: 이용자 이름
+	 UserPhoneNum 	: 이용자 전화번호
+	 UserStatus 	: 이용자 대출 여부 필터
+	 BookNumber 	: 서지번호
+	 Title 			: 대출중인 도서의 제목
+	 TitleValue 	: 대출중인 도서의 책 제목과 서지번호 리스트를 구분자 '/n'를 사용해 반환된 값을 저장
+	 				=> ex) 아낌없이 주는 나무(B0001)/n삼국지(B0004)/n ...
+	 Count 			: 대출중인 도서의 갯수
+	 
+	 [기능 및 반환값]
+	 ^CacheTempFilter에 저장된 정보들을 가지고
+	 내부에서 Paging함수를 이용해 페이징, 데이터 정제한 후 html로 리스트를 작성해줍니다.
+	======================= */
+	new PageValue,StartNum,EndNum
+	new UserID,UserName,UserPhoneNum,UserStatus,BookNumber,Title,TitleValue,Count
+	;
+	// 시작인덱스와 끝 인덱스를 계산해주는 함수 결과를 "[StartNum]^[EndNum]"으로 반환받는다. (ex 6^10)
+	set PageValue=$$Paging^StaticManager(AllPage,Page,Paging)
+	set StartNum=$P(PageValue,"^",1)
+	set EndNum=$P(PageValue,"^",2)
+	;
+	set UserID=""
+	for i=1:1 {
+		set UserID=$O(^CacheTempFilter(SESSIONID,UserID))
+		quit:(UserID="")
+		;
+		// 현재 인덱스(i)가 시작 인덱스 전이면 더 이상 실행하지 않도록
+		continue:(i<StartNum)
+		// 현재 인덱스가 끝 인덱스보다 크면 반복문을 종료시키도록
+		quit:(i>EndNum)
+		;
+		set UserName=^EndUsr(UserID,"UserName")
+		set UserPhoneNum=^EndUsr(UserID,"UserPhoneNum")
+		;
+		// 1. 이용자가 대출중이라면
+		if ($D(^CHisR("U",UserID))) {
+			set BookNumber=$O(^CHisR("U",UserID,""))
+			set TitleValue=$$LendBookList^AdminUserManager(UserID)
+			set Title=$P(TitleValue,"^",2)
+			set Count=$P(TitleValue,"^",1)
+			set UserStatus=^BMast(BookNumber,"BookTitle")_$S(Count=1:"",Count>=2:" 외 "_(Count-1))
+		}
+		// 2. 이용자가 대출중이 아니라면
+		else {
+			set UserStatus="-"
+			set Title="-"
+		}
+		;
+		&html<			
+			<ul class="list_books">
+		>
+		if (LoginType="Admin"){
+			&html<
+				<li class="case"><span id="selectUserID" onclick="aboutUser(event)">#(UserID)#</span><a class="deleteUser" title="삭제" onclick="deleteUser('#(UserID)#','#(UserStatus)#')">x</a></li>
+			>
+		}
+		&html<
+				<li class="case">#(UserName)#</li>
+				<li class="case">#(UserPhoneNum)#</li>
+				<li class="case" title="#(Title)#">#(UserStatus)#</li>
+			</ul>
+		>
+	}
+	;
+	// 더 이상 사용하지 않을 글로벌을 삭제해준다.
+	kill ^CacheTempFilter(SESSIONID)
+	;
+	quit ""
+	;
+	;
+	;
+LendBookList(UserID)
+	/* ==========================
+	[대출중인 도서 리스트 반환]
+	 이용자가 현재 대출중인 도서를 콤마로 구분하여 반환
+	 
+	 [매개변수]
+	 UserID = 이용자 아이디
+	 
+	 [지역변수]
+	 BookNumber : 서지번호
+	 BookTitle 	: 도서제목
+	 Result		: 대출중인 도서제목과 서지번호 리스트를 구분자 '\n'를 이용해 저장해놓는 변수
+	 			=> ex) 도서제목(서지번호)\n도서제목(서지번호)\n...
+	 Count		: 대출중인 도서를 카운트
+	 
+	 [반환값]
+	 Count와 Result를 "^"로 구분하여 반환,
+	========================== */
+	new BookNumber,BookTitle,Result,Count
+	set Result="",Count=0
+	;
+	set BookNumber=""
+	for {
+		set BookNumber=$O(^CHisR("U",UserID,BookNumber))
+		// Result의 첫 번째 문자열에 구분자('\n')가 붙지 않도록
+		set:BookNumber'="" Result=Result_"\n"
+		quit:(BookNumber="")
+		;
+		// 대출중인 도서 개수를 세어준다.
+		set Count=Count+1
+		;
+		set BookTitle=^BMast(BookNumber,"BookTitle")
+		;
+		// 서식에 맞게 Result에 도서정보를 넣어준다.
+		set Result=Result_BookTitle_"("_BookNumber_")"
+	}
+	;
+	quit Count_"^"_Result
+	;
+	;
+	;
+HTMLPagingSelectUserVer(AllPage,UserStatus,UserWord,Paging,Page)
+	/* =========================
+	[대출도서조회 관련 페이지 인덱스 출력]
+	 이용자조회  관련 페이지의 페이징 인덱스를 html로 반환하는 함수
+	 
+	 [매개변수]
+	 AllPage 	: 페이지의 끝번호
+	 UserStatus : 이용자 대출여부 필터
+	 UserWord	: 이용자 검색어
+	 Paging		: 한 페이지에 보여줄 리스트의 갯수
+	 
+	 [지역변수]
+	 MaxPage	: 마지막 페이지 번호
+	========================= */
+	new MaxPage
+	// 리스트가 존재한다면(리스트가 0개가 아니라면)
+	if (AllPage'=0){
+		// 마지막 페이지 번호를 계산해주는 메서드
+		set MaxPage=$$CalcPage^StaticManager(AllPage,Paging)
+		;
+		for i=1:1:MaxPage {
+			// 1. 현재 페이지라면,
+			if (i=Page){
+				&html<
+					<a class="selectPage">#(i)#</a>
+				>	
+			}
+			// 2. 현재 페이지가 아니라면(링크 걸어주기)
+			else {
+				&html<
+					<a href="/yk/src/admin/userselect/SelectUser.csp?Page=#(i)#&UserStatus=#(UserStatus)#&UserWord=#(UserWord)#">#(i)#</a>
+				>	
+			}	
+		}
+	}
+	quit ""
+	;
+	;
+	;
+DeleteUser(UserID)
+	/* =========================
+	[이용자 강제 탈퇴]
+	이용자가 대출중인지 확인하고 대출중이지 않으면 강제로 탈퇴시켜줍니다.
+	
+	[매개변수]
+	UserID : 이용자 아이디
+	
+	[지역변수]
+	Result : 탈퇴여부를 반환하는 변수
+	
+	[반환값]
+	1. 이용자가 대출중이 아니라면		: [반환값] Y
+		=> 탈퇴 진행, 이용자 정보를 탈퇴 이용자 정보로 이동
+	2. 이용자가 대출중이라면		: [반환값] N
+	========================= */
+	lock ^CHisR
+	;
+	new Result
+	set Result="N"
+	;
+	// 이용자가 대출중이 아니라면
+	if ('$D(^CHisR("U",UserID))) {
+		// 이용자 정보를 탈퇴 이용자 정보에 데이터 이동
+		merge ^DeleteUsr(UserID)=^EndUsr(UserID)
+		kill ^EndUsr(UserID)
+		;
+		set Result="Y"
+	}
+	;
+	lock ^CHisR
+	;
+	quit Result
+	;
+	;
+	;
+.
+
+BookSelectManager^MAC^^65857,54772.050877^0
+BookSelectManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 22일 [이전수정 : 2020년 4월 21일 ]
+	; 용도 : 도서 조회 관련
+	;=========================
+	quit
+	;
+	;
+	;
+HTMLSelectNewArrival()
+	/* ============================
+	[신착도서 10개 출력]
+	신착도서 10개 출력합니다.
+	
+	[지역변수]
+	index 		: 가장최근에 등록된 책의 서지번호를 차례로 저장할 변수
+	BookTitle 	: 도서제목
+	BookWriter 	: 저자
+	
+	[기능]
+	 ^Bast에 저장되어있는 도서 정보를 최신순으로 반환,
+	 만약 DB의 정보가 10개 미만이라면 '-'으로 나머지를 채워준다.
+	============================ */
+	new index,BookTitle,BookWriter
+	set index=""
+	;
+	for i=1:1:10 {
+		set index=$ZP(^BMast(index))
+		quit:index=""
+		;
+		set BookTitle=^BMast(index,"BookTitle")
+		set BookWriter=^BMast(index,"BookWriter")
+		;
+		&html<
+			<li>#(BookTitle)# [#(BookWriter)#]</li>
+		>
+	}
+	;
+	// 신착도서가 10개 미만일 때!
+	if (i'=10){
+		for j=(10-i):-1:0 {
+			&html<
+				<li> - </li>
+			>
+		}
+	}	
+	quit ""
+	;
+	;
+	;
+SelectBook(BookStatus,Word)
+	/* =========================
+	[도서 조회 및 검색]
+	필터된 도서의 세션아이디,제목,서지번호를 첨자로 ^CacheTempFilter에 저장
+	
+	[매개변수]
+	BookStatus 	: 전체(selectAll) 또는 대출가능(selectLoanable) 도서 필터
+	Word 		: 검색어
+	
+	[지역변수]
+	BookNumber	: 서지번호
+	BookTitle	: 도서제목
+	BookWriter	: 저자
+	Count		: 카운트
+	
+	[반환값]
+	검색한 도서들이 ^CacheTempFilter에 저장되는데 그 갯수를 반환
+	========================= */
+	new BookNumber,BookTitle,BookWriter,Count
+	set Count=0
+	;
+	// 중복 방지를 위해 이전 데이터 삭제
+	kill ^CacheTempFilter(SESSIONID)
+	;
+	set BookNumber=""
+	for {
+		set BookNumber=$O(^BMast(BookNumber))
+		quit:(BookNumber="")
+		;
+		set BookTitle=^BMast(BookNumber,"BookTitle")
+		set BookWriter=^BMast(BookNumber,"BookWriter")
+		;
+		// if (검색어가 공백이거나 검색어가 단어에 포함된다면){
+		if ((Word="")||(BookTitle[Word)||(BookWriter[Word)){
+			// BookStatus가 대출가능이라면 체크하기
+			continue:(BookStatus="selectLoanable")&&($D(^CHisR("R",BookNumber)))
+			;
+			set ^CacheTempFilter(SESSIONID,BookTitle,BookNumber)=""
+			set Count=Count+1
+		}
+	}
+	;
+	quit Count
+	;
+	;
+	;
+HTMLSelectBook(AllPage,Page,Paging)
+	/* =======================
+	[검색한 도서 출력]
+	 ^CacheTempFilter에 저장된 정보들을 가지고
+	 내부에서 Paging함수를 이용해 페이징, 데이터 정제한 후 html로 리스트를 작성해준다.
+	 단, 로그인 하고 있는 사용자가 관리자일 경우엔 서지번호와 도서 삭제가 함께 생성된다.
+	 
+	 [매개변수]
+	 AllPage		: 전체 페이지 수
+	 Page			: 현재 페이지
+	 Paging			: 한 페이지 당 리스트 개수
+	 
+	 [지역변수]
+	 PageValue		: 페이징 계산 결과
+	 StartNum		: 시작 인덱스
+	 EndNum			: 끝 인덱스
+	 LoginType		: 로그인 타입
+	 BookNumber		: 서지번호
+	 BookTitle		: 도서제목
+	 BookWriter		: 저자
+	 BookPublisher	: 출판사
+	 BookStatus		: 도서 대출중 필터
+	 
+	 [기능]
+	 검색한 도서를 페이지의 맞게 출력
+	======================= */
+	new PageValue,StartNum,EndNum
+	new LoginType,BookNumber,BookTitle,BookWriter,BookPublisher,BookStatus,StartNum,EndNum
+	;
+	// 시작인덱스와 끝 인덱스를 계산해주는 함수 결과를 "[StartNum]^[EndNum]"으로 반환받는다. (ex 6^10)
+	set PageValue=$$Paging^StaticManager(AllPage,Page,Paging)
+	set StartNum=$P(PageValue,"^",1)
+	set EndNum=$P(PageValue,"^",2)
+	;
+	// 관리자인지 일반 사용자인지 구분해준다.
+	set LoginType=%session.Get("LoginType")
+	;
+	set BookTitle=""
+	for i=1:1 {
+		set BookTitle=$O(^CacheTempFilter(SESSIONID,BookTitle))
+		quit:(BookTitle="")
+		;
+		// 현재 인덱스(i)가 시작 인덱스 전이면 더 이상 실행하지 않도록
+		continue:i<StartNum
+		// 현재 인덱스가 끝 인덱스보다 크면 반복문을 종료시키도록
+		quit:i>EndNum
+		;
+		set BookNumber=$O(^CacheTempFilter(SESSIONID,BookTitle,""))
+		set BookWriter=^BMast(BookNumber,"BookWriter")
+		set BookPublisher=^BMast(BookNumber,"BookPublisher")
+		;
+		// 대출중인 도서라면
+		if ($D(^CHisR("R",BookNumber))) {
+			set BookStatus="대출중"
+		}
+		// 대출중이지 않은 도서라면
+		else {
+			set BookStatus="대출가능"
+		}
+		;
+		&html<			
+			<ul class="list_books">
+		>
+		// 관리자일 경우에만 서지번호와 삭제버튼 출력
+		if (LoginType="Admin"){
+			&html<
+				<li>#(BookNumber)#<a class="deleteBook" title="삭제" onclick="deleteBook('#(BookNumber)#','#(BookTitle)#','#(BookStatus)#')">x</a></li>
+			>
+		}
+		&html<
+				<li class="case">#(BookTitle)#</li>
+				<li class="case">#(BookWriter)#</li>
+				<li class="case">#(BookPublisher)#</li>
+				<li>#(BookStatus)#</li>
+			</ul>
+		>
+	}
+	;
+	kill ^CacheTempFilter(SESSIONID)
+	;
+	quit ""
+	;
+	;
+	;
+HTMLPagingSelectBookVer(AllPage,BookStatus,Word,Paging,Page)
+	/* =========================
+	[페이지 번호 출력]
+	대출도서조회 관련 페이지의 페이지 번호 출력
+	
+	[매개변수]
+	AllPage		: 전체 페이지 수
+	BookStatus	: 도서 대출중 필터
+	Word		: 검색어
+	Paging		: 한 페이지 당 리스트 개수
+	
+	[지역변수]
+	Href		: 주소를 저장하는 변수
+	LoginType	: 로그인 타입
+	MaxPage		: 마지막 페이지 번호
+	
+	[기능]
+	 도서조회  관련 페이지의 페이징 인덱스를 html로 반환하는 함수
+	========================= */
+	; 리스트가 존재한다면(리스트가 0개가 아니라면)
+	new LoginType,Href,MaxPage
+	;
+	// 관리자인지 일반 사용자인지 구분해 이동할 주소를 바꾸어준다.
+	set LoginType=%session.Get("LoginType")
+	set Href=$S(LoginType="Admin":"admin/bookmanage/ManageBook.csp",1=1:"static/bookselect/SelectBook.csp")
+	;
+	// 리스트가 존재한다면(리스트가 0개가 아니라면)
+	if (AllPage'=0){
+		// 마지막 페이지 번호를 계산해주는 메서드
+		set MaxPage=$$CalcPage^StaticManager(AllPage,Paging)
+		;
+		for i=1:1:MaxPage {
+			// 현재 페이지라면,
+			if (i=Page){
+				&html<
+					<a class="selectPage">#(i)#</a>
+				>	
+			}
+			// 현재 페이지가 아니라면(링크 걸어주기)
+			else {
+				&html<
+					<a href="/yk/src/#(Href)#?Page=#(i)#&BookStatus=#(BookStatus)#&Word=#(Word)#">#(i)#</a>
+				>	
+			}	
+		}
+	}
+	;
+	quit ""
+	;
+	;
+	;
+HTMLSelectLendBook(UserID,AllPage,Page)
+	/* ========================
+	[대출로그 반환]
+	 로그인 중인 회원의 대출로그 반환
+	 
+	[매개변수]
+	 UserID			: 이용자 아이디
+	 AllPage		: 끝 페이지 번호
+	 Page			: 현재 페이지
+	
+	[지역변수]
+	 BookNumber		: 서지번호
+	 BookTitle		: 도서제목
+	 BookWriter		: 저자
+	 BookPublisher	: 출판사
+	 LendDate		: 대출 날짜
+	 ReturnDate		: 반납 날짜
+	 BookStatus		: 도서 대출중 필터
+	 PageValue		: 페이징 계산 결과
+	 StartNum		: 시작 인덱스
+	 EndNum			: 끝 인덱스
+	
+	======================== */
+	new BookNumber,BookTitle,BookWriter,BookPublisher,LendDate,ReturnDate,BookStatus
+	new PageValue,StartNum,EndNum
+	;
+	// 시작인덱스와 끝 인덱스를 계산해주는 함수 결과를 "[StartNum]^[EndNum]"으로 반환받는다. (ex 6^10)
+	set PageValue=$$Paging^StaticManager(AllPage,Page,Paging)
+	set StartNum=$P(PageValue,"^",1)
+	set EndNum=$P(PageValue,"^",2)
+	;
+	set LendDate=""
+	for {
+		set LendDate=$ZP(^HistoryUsr(UserID,LendDate))
+		quit:LendDate=""
+		;
+		set LendNum=""
+		for i=1:1 {
+			set LendNum=$ZP(^HistoryUsr(UserID,LendDate,LendNum))
+			quit:LendNum=""
+			;
+			// 현재 인덱스(i)가 시작 인덱스 전이면 더 이상 실행하지 않도록
+			continue:(i<StartNum)
+			// 현재 인덱스가 끝 인덱스보다 크면 반복문을 종료시키도록
+			quit:(i>EndNum)
+			;
+			set BookNumber=^HistoryUsr(UserID,LendDate,LendNum,"BookNumber")
+			set ReturnDate=^HistoryUsr(UserID,LendDate,LendNum,"ReturnDate")
+			set BookStatus=^HistoryUsr(UserID,LendDate,LendNum,"BookStatus")
+			;
+			// 1. 존재하는 도서일 때
+			if ($D(^BMast(BookNumber))){
+				set BookTitle=^BMast(BookNumber,"BookTitle")
+				set BookWriter=^BMast(BookNumber,"BookWriter")
+				set BookPublisher=^BMast(BookNumber,"BookPublisher")
+			}
+			// 2. 폐기된 도서일 때
+			else {
+				set BookTitle=^DeleteBMast(BookNumber,"BookTitle")
+				set BookWriter=^DeleteBMast(BookNumber,"BookWriter")
+				set BookPublisher=^DeleteBMast(BookNumber,"BookPublisher")
+			}
+			;
+			&html<
+				<ul class="list_books">
+					<li class="case">#(BookTitle)#</li>
+					<li class="case">#(BookWriter)#</li>
+					<li class="case">#(BookPublisher)#</li>
+					<li>#(LendDate)#</li>
+					<li>#(ReturnDate)#</li>
+					<li>#(BookStatus)#</li>
+				</ul>
+			>
+		}
+	}
+	quit ""
+	;
+	;
+	;
+GetLendBookCount(UserID)
+	/* ==========================
+	[도서 히스토리 갯수 반환]
+	 페이징을 위해 해당 회원 히스토리 하위노드 개수를 구합니다.
+	 
+	 [매개변수]
+	 UserID		: 이용자 아이디
+	 
+	 [지역변수]
+	 Count		: 히스토리 갯수 저장
+	 LendDate	: 대출일
+	 LendNum	: 대출 인덱스
+	 
+	 [반환값]
+	 이용자의 히스토리 갯수
+	========================== */
+	new Count,LendDate,LendNum
+	set Count=0
+	;
+	set LendDate=""
+	for {
+		set LendDate=$O(^HistoryUsr(UserID,LendDate))
+		quit:LendDate=""
+		;
+		// 각 날짜별 마지막 인덱스 번호를 구한다. 마지막 인덱스 번호는 해당일에 빌린 도서의 개수를 의미한다.
+		set LendNum=$ZP(^HistoryUsr(UserID,LendDate,""))
+		;
+		// 개수를 카운트 해준다.
+		set Count=Count+LendNum
+	}
+	;
+	quit Count
+	;
+	;
+	;
+HTMLPagingSelectLendBookVer(AllPage,Paging)
+	/* =========================
+	[대출 고객 목록 페이지번호 출력]
+	 대출도서조회(고객 대출목록 히스토리)관련 페이지의 페이징 인덱스를 html로 반환합니다.
+	 
+	 [매개변수]
+	 AllPage	: 전체 페이지 수
+	 Paging		: 한 페이지당 보여줄 리스트의 수
+	 
+	========================= */
+	// 리스트가 존재한다면(리스트가 0개가 아니라면)
+	if (AllPage'=0){
+		set MaxPage=$$CalcPage^StaticManager(AllPage,Paging)
+		;
+		for i=1:1:MaxPage {
+			// 현재 페이지라면,
+			if (i=Page){
+				&html<
+					<a class="selectPage">#(i)#</a>
+				>	
+			}
+			// 현재 페이지가 아니라면(링크 걸어주기)
+			else {
+				&html<
+					<a href="/yk/src/user/lendbookselect/SelectLendBook.csp?Page=#(i)#">#(i)#</a>
+				>	
+			}	
+		}
+	}
+	;
+	quit ""
+	;
+	;
+	;
+.
+
+LoginManager^MAC^^65857,59978.062539^0
+LoginManager
+	;=========================
+	; 작성자 : 이영경
+	; 최종수정 : 2020년 4월 23일 [이전수정 : 2020년 4월 22일 ]
+	; 용도 : 로그인 관련
+	;=========================
+	quit
+	;
+	;
+	;
+LogInYN(UserID,UserPW)
+	/* =========================
+	 [관리자인지 이용자인지 확인]
+	 계정을 확인하고 로그인 세션을 만드는 루틴
+	 
+	 [매개변수]
+	 UserID		: 이용자 아이디
+	 UserPW		: 이용자 비밀번호
+	 
+	 [지역변수]
+	 Result		: 결과
+	 
+	 [기능]
+	 1. 관리자 계정인지 확인 후 로그인 세션 생성
+	 2. 일반 계정인지 확인 후 로그인 세션 생성
+	 
+	 로그인 성공시 	: [반환값] Y
+	 로그인 실패시	: [반환값] N
+	========================= */
+	new Result
+	set Result="N"
+	// 1. 관리자 계정이라면
+	if (($D(^Admin(UserID))) && (^Admin(UserID)=UserPW)){
+		set %session.Data("LoginType")="Admin"
+		set %session.Data("LoginAdmin")=UserID
+		set Result="Y"
+	}
+	// 2. 일반 계정이라면
+	elseif (($D(^EndUsr(UserID))) && (^EndUsr(UserID,"UserPW")=UserPW)){
+		set %session.Data("LoginType")="User"
+		set %session.Data("LoginUser")=UserID
+		set %session.Data("LoginUserName")=^EndUsr(UserID,"UserName")
+		set Result="Y"
+	}
+	 quit Result
+	 ;
+	 ;
+	 ;
+LogOut()
+	/* =========================
+	[로그아웃] 
+	로그아웃 해주는 루틴
+	
+	[기능]
+	로그인 관련된 세션을 모두 만료시켜준다.
+	========================= */
+	set %session.Data("LoginType")=""
+	set %session.Data("LoginAdmin")=""
+	set %session.Data("LoginUser")=""
+	set %session.Data("LoginUserName")=""
+	;
+	quit
+	;
+	;
+	;
+
+SignUpManager^MAC^^65857,60471.014247^0
+SignUpManager
+	/* =========================
+	 작성자 : 이영경
+	; 최종수정 : 2020년 4월 23일 [이전수정 : 2020년 4월 22일 ]
+	 용도 : 회원 가입  관련
+	========================= */
+	quit
+	;
+	;
+	;
+SignUpYN(UserID,UserPW,UserName,UserPhoneNum,UserClassNum)
+	/* =========================
+	[회원가입 정보 저장]
+	회원가입 정보 저장하는 메서드
+	
+	[매개변수]
+	UserID			: 이용자 아이디
+	UserPW			: 이용자 비밀번호
+	UserName		: 이용자 이름
+	UserPhoneNum	: 이용자 전화번호
+	UserClassNum	: 이용자 학번
+	
+	[지역변수]
+	Result 			: 회원가입 완료되었는지 여부를 저장할 변수
+	
+	[반환값]
+	회원가입성공 = "Y"
+	회원가입실패 = "N"
+	
+	중복 저장을 방지하기 위해 lock!
+	========================= */
+	lock ^EndUsr
+	new Result
+	set Result="N"
+	;
+	// 회원가입 절차를 진행하는동안, 중복 ID가 들어갔을 수 있으니 한번 더 체크
+	if ($$CheckUserIDYN^SignUpManager(UserID)="Y"){
+		set ^EndUsr(UserID,"UserPW")		=UserPW
+		set ^EndUsr(UserID,"UserName")		=UserName
+		set ^EndUsr(UserID,"UserPhoneNum")	=UserPhoneNum
+		set ^EndUsr(UserID,"UserClassNum")	=UserClassNum
+		;
+		set Result="Y"
+	}
+	else  {
+		// 회원가입 진행 중 다른 사람이 먼저 아이디를 사용한 경우
+		set Result="N"
+	}
+	;
+	lock ^EndUsr
+	;
+	quit Result
+	;
+	;
+	;
+CheckUserIDYN(UserID)
+	/* =========================
+	[중복체크]
+	 회원가입을 위한 아이디 체크
+		1. 관리자 계정이 아닌지,
+		2. 삭제된 계정이 아닌지,
+		3. 가입된 회원 계정이 아닌지,
+	
+	[매개변수]
+	UserID = 이용자 아이디
+	
+	[반환값]
+	1~3 조건이 모두 Y이면 "Y"를 반환
+	하나라도 아니면 "N"를 반환
+	========================= */
+	if (($D(^Admin(UserID))=1)||($D(^DeleteUsr(UserID))=10)||($D(^EndUsr(UserID))=10)){
+		quit "N"
+	}
+	quit "Y"
+	;
+	;
+	;
+
+StaticManager^MAC^^65857,58838.294909^0
+StaticManager
+	;=========================
+	; 작성자 : 이영경
+	; 작성날짜: 2020년 4월 13일
+	; 용도 : 전역으로 사용하는 함수들 모음
+	;=========================
+	quit
+	;
+	;
+	;
+Paging(AllPage,Page,Paging)
+	/* ======================
+	 [페이징]
+	 페이징을 위한 루틴
+	 
+	 [매개변수]
+	 AllPage 	: 전체 페이지 수
+	 Page		: 현재 페이지
+	 Paging		: 한 페이지에 보여줄 리스트의 수
+	 
+	 [지역변수]
+	 StartNum	: 시작번호
+	 EndNum		: 끝 번호
+	 
+	 [반환값]
+	 시작번호와 끝번호를 "^"로 구분하여 반환
+	====================== */
+	set StartNum=(Page-1)*Paging+1
+	set EndNum=StartNum+Paging-1
+	
+	// 만약 마지막 인덱스가 EndNum보다 작다면
+	if (EndNum>AllPage){
+		set EndNum=AllPage
+	}
+	
+	quit StartNum_"^"_EndNum
+	;
+	;
+	;
+CalcPage(AllPage,Paging)
+	/* ======================
+	 [마지막 페이지 번호]
+	 페이징을 계산해 마지막 페이지 번호를 반환합니다.
+	 
+	 [매개변수]
+	 AllPage	: 전체 페이지 수
+	 Paging		: 한 페이지 당 리스트 개수
+	 
+	 [지역변수]
+	 CalcPage	: 페이지 계산 1차 결과
+	 IntegerPage: 페이지 정수 부분
+	 FloatPage	: 페이지 소수 부분
+	 
+	 [기능 및 반환값]
+	 전체/한 페이지 당 보여줄 개수 의 결과	나머지가 있으면 : [반환값] 몫 + 1
+	 							나머지가 없으면 : [반환값] 몫
+	====================== */
+	new CalcPage,IntegerPage,FloatPage
+	;
+	set CalcPage=AllPage/Paging
+	// 계산 결과에서 정수 부분을 구한다.
+	set IntegerPage=$P(CalcPage,".",1)
+	// 계산 결과에서 소수 부분을 구한다.
+	set FloatPage=$P(CalcPage,".",2)
+	;
+	// 0으로 나누어 떨어지지 않는다면, 페이지의 정수 부분에 1을 더한다.	
+	set:(FloatPage'="") IntegerPage=IntegerPage+1
+	;
+	quit IntegerPage
+	;
+	;
+	;
+RedirectDependsOnType(PageType)
+	/* ======================
+	 [강제이동]
+	 페이지 타입에 따라 로그인을 체크하고 강제 이동시켜주는 메서드
+	 OnPreHTTP 에서 실행됩니다.
+	 
+	 [매개변수]
+	 PageType	: 접속할 수 있는 접속자 조건
+	 				=> Admin 	: 관리자
+	 				=> 'Admin 	: 관리자만 빼고
+	 				=> User		: 이용자
+	 				=> Visit	: 비회원
+	 
+	 [지역변수]
+	 LoginType	: 로그인 타입
+	 Href		: 주소
+	 Result		: 결과
+	 
+	 [반환값]
+	 1 또는 0
+	 	=> 1이면 아래 코드실행, 0이면 진행X
+	====================== */
+	new LoginType,Href,Result
+	set LoginType=%session.Get("LoginType")
+	set:LoginType="" LoginType="Visit"
+	set Result=1
+	w LoginType,Result
+	;
+	// 페이지 타입에 No가 포함되어있는 형태이면서, 페이지 타입과 로그인 타입이 일치할 때
+	if ((PageType["'")&&(PageType[LoginType)){
+		set Href="main/Main.csp"
+		set Result=0
+	}
+	// 페이지 타입에 '가 포함되지 않으면서, 페이지 타입과 로그인 타입이 일치하지 않을 때
+	elseif ((PageType'["'")&&(LoginType'=PageType)){
+		set Href=$S(((PageType="Admin")||(PageType="User")):"login/Login.csp",
+					1=1:"main/Main.csp")
+		set Result=0
+	}
+	;
+	// Result=0이면 redirect 시킬 주소를 세팅해준다.
+	set:(Result=0) %response.Redirect=("/yk/src/static/"_Href)
+	;
+	quit Result
+	;
+	;
+	;
+
+UserManager^MAC^^65857,49849.24668^0
+UserManagerManager
+	;=========================
+	; 작성자 : 이영경
+	; 작성날짜: 2020년 4월 13일
+	; 용도 : 회원 정보 관련
+	;=========================
+	quit
+	;
+	;
+	;
+UpdateInformation(UserID,UserPW,UserNewPW,UserName,UserPhoneNum,UserClassNum)
+	/* =============================
+	[이용자 개인정보수정]
+	 개인정보수정
+	 
+	 [매개변수]
+	 UserID			= 이용자 아이디
+	 UserPW			= 이용자 비밀번호
+	 UserNewPW		= 이용자 새로운 비밀번호
+	 UserName		= 이용자 이름
+	 UserPhoneNum	= 이용자 전화번호
+	 UserClassNum	= 이용자 학번
+	 
+	 [지역변수]
+	 Result		= 개인정보 수정 여부를 반환
+	 LoginUser	= 세션아이디를 저장할 변수
+	 
+	 [반환값]
+	 세션과 아이디가 다르면 "N^계정불일치"
+	 기존비밀번호와 입력한 비밀번호가 다르면 "N^비밀번호불일치"
+	 모두 정상이면 "Y"
+	 
+	 [기능]
+	 1. 세션에 저장된 로그인 정보와 아이디가 일치하는지 확인
+	 	만약 일치하지 않는다면 세션을 만료시키고 로그인 페이지로 이동시켜준다.
+	 2. 기존 비밀번호가 일치하는지 확인
+	============================= */
+	new Result,LoginUser
+	set LoginUser=%session.Get("LoginUser")
+	set UserOriginalPW=^EndUsr(UserID,"UserPW")
+	
+	// 1. 현재 세션과 아이디가 다르다면
+	if (LoginUser'=UserID){
+		set Result="N^계정불일치"
+		do LogOut^LoginManager()
+	}
+	// 2. 기존비밀번호와 입력한 비밀번호가 다르다면
+	elseif (UserOriginalPW'=UserPW){
+		set Result="N^비밀번호불일치"
+	}
+	// 3. 모두 정상적이라면
+	else {
+		set:UserNewPW'="" UserPW=UserNewPW
+		
+		set ^EndUsr(UserID,"UserPW")=UserPW
+		set ^EndUsr(UserID,"UserName")=UserName
+		set ^EndUsr(UserID,"UserPhoneNum")=UserPhoneNum
+		set ^EndUsr(UserID,"UserClassNum")=UserClassNum
+		;
+		set Result="Y"
+		;
+		do LogInYN^LoginManager(UserID,UserPW)
+	}
+	
+	quit Result
+	;
+	;
+	;
+DeleteUser(UserID,UserPW)
+	/* =============================
+	 [회원탈퇴]
+	 회원정보 글로벌을 탈퇴회원 글로벌로 이동시켜준다.
+	 
+	 [매개변수]
+	 UserID = 이용자 아이디
+	 UserPW = 이용자 비밀번호
+	 
+	 [지역변수]
+	 Result		= 탈퇴 여부를 반환할 변수
+	 LoginUser	= 세션 아이디를 저장
+	 
+	 [반환값]
+	 현재 세션과 아이디가 다르다면 "N^계정불일치"
+	 도서를 대출중이라면 "N^도서대출중"
+	 기존비밀번호와 입력한 비밀번호가 다르다면 "N^비밀번호불일치"
+	 모두 정상적이라면 "Y"
+	 
+	 [기능]
+	 1. 세션에 저장된 로그인 정보와 아이디가 일치하는지 확인
+	 	만약 일치하지 않는다면 세션을 만료시키고 로그인 페이지로 이동시켜준다.
+	 2. 기존 비밀번호가 일치하는지 확인
+	 3. 도서를 대출중이라면
+	============================= */
+	new Result,LoginUser
+	set LoginUser=%session.Get("LoginUser")
+	set UserOriginalPW=^EndUsr(UserID,"UserPW")
+	// 1. 현재 세션과 아이디가 다르다면
+	if (LoginUser'=UserID){
+		set Result="N^계정불일치"
+		do LogOut^LoginManager()
+	}
+	// 2. 기존비밀번호와 입력한 비밀번호가 다르다면
+	elseif (UserOriginalPW'=UserPW){
+		set Result="N^비밀번호불일치"
+	}
+	// 3. 도서를 대출중이라면
+	elseif ($O(^CHisR("U",UserID,""))'="") {
+		set Result="N^도서대출중"
+	}
+	// 4. 모두 정상적이라면
+	else {
+		merge ^DeleteUsr(UserID)=^EndUsr(UserID)
+		kill ^EndUsr(UserID)
+		set Result="Y"
+		do LogOut^LoginManager()
+	}
+	quit Result
+	;
+	;
+	;
+
+
+

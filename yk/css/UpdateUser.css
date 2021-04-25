@@ -19,3 +19,31 @@
 .changeNewPassword {
 	display: none;
 }
+#UpdateUserForm p.require,
+.changeNewPassword .option{
+	display: flex;
+}
+#UpdateUserForm label{
+	width: 150px;
+	margin: auto;
+	font-size: 13pt;
+}
+.require input,
+.changeNewPassword input{
+	width: 400px;
+	font-size: 13pt;
+	margin: auto;
+}
+.option #changeNewPWCheck{
+	margin-left: 100px;
+}
+.DeleteUser {
+	display: flex;
+	margin: 25px auto;
+	width: 300px;
+}
+.Button_blue {
+	height: 70px;
+	line-height: 70px;
+	font-size: 20pt;
+}

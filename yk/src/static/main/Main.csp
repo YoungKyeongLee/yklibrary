@@ -22,7 +22,7 @@
 			<div class="content_clear" />
 			<hr>	
 			<ul>
-				#($$SelectNewArrival^BookSelectManager())#
+				#($$HTMLSelectNewArrival^BookSelectManager())#
 			</ul>
 		</article>
 	</section>

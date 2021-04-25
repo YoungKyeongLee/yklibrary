@@ -1,7 +1,12 @@
 <!DOCTYPE html>
+<script language="cache" method="OnPreHTTP" arguments="" returntype="%Boolean">
+	quit $$RedirectDependsOnType^StaticManager("User")
+</script>
 <script language="cache" runat="server">
+	/* ===============================
+	 로그인 되어있는 계정의 아이디, 이름, 휴대폰번호, 학번을 구한다.
+	=============================== */
 	set UserID=%session.Get("LoginUser")
-	quit:UserID=""
 	set UserName=^EndUsr(UserID,"UserName")
 	set UserPhoneNum=^EndUsr(UserID,"UserPhoneNum")
 	set UserClassNum=^EndUsr(UserID,"UserClassNum")
@@ -35,8 +40,7 @@
 					<input type="password" id="UserPW" name="UserPW">
 				</p>
 				<p class="option">
-					<label for="changeNewPWCheck"></label>
-					<input type="checkbox" id="changeNewPWCheck" name="changeNewPWCheck" onclick="clickNewPWChekcBox(event)">비밀번호 변경
+					<input type="checkbox" id="changeNewPWCheck" name="changeNewPWCheck" onclick="clickNewPWChekcBox(event)">비밀번호 변경</input>
 				</p>
 				<div id="changeNewPassword" class="changeNewPassword">
 					<p class="option">
@@ -62,7 +66,7 @@
 				</p>
 				<div class="Button_blue" onclick="UpdateSubmit()">수정내용 저장</div>
 			</form>
-			<div>
+			<div class="DeleteUser">
 				<a>회원탈퇴를 원하십니까?</a>
 				<div class="Button_grey" onclick="location.href='/yk/src/user/userdelete/DeleteUser.csp'">회원 탈퇴</div>
 			</div>

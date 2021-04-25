@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <script language="cache" runat="server">
+	/* =============================
+		개인정보 수정
+	 [변수]
+	 UserID			: 이용자 아이디
+	 UserPW			: 이용자 비밀번호
+	 UserNewPW		: 이용지 새 비밀번호(비밀번호 변경하지 않으면 "" 값이 들어가있음)
+	 UserName		: 이용자 이름
+	 UserPhoneNum	: 이용자 휴대폰번호
+	 UserClassNum	: 이용자 학번
+	============================= */
 	set UserID=%request.Get("UserID")
 	set UserPW=%request.Get("UserPW")
 	set UserNewPW=%request.Get("UserNewPW")
@@ -7,6 +17,7 @@
 	set UserPhoneNum=%request.Get("UserPhoneNum")
 	set UserClassNum=%request.Get("UserClassNum")
 	
+	// 개인정보 수정 후 결과 반환
 	set result=$$UpdateInformation^UserManager(UserID,UserPW,UserNewPW,UserName,UserPhoneNum,UserClassNum)
 </script>
 <html lang="ko">

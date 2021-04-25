@@ -38,15 +38,19 @@ function lendBookSubmit(){
 	====================== */
 	<!--
 	let result = true;
+	
+	// display가 활성화 되어있는 input만 값을 입력했는지 체크하고 비어있다면 return false 해준다.
 	document.querySelectorAll(".lendBookForm input[type='text']").forEach(input => {
 		if(input.parentNode.style.display !== "none" && input.value === ""){
 			result = false;
 		}
 	});
 	
+	// 1. 값이 모두 입력되어있다면
 	if(result){
 		document.getElementsByClassName('lendBookForm')[0].submit();
 	}
+	// 2. 값이 입력되어있지 않다면
 	else {
 		alert('모두 입력해주세요');
 	}

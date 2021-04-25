@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <script language="cache" runat="server">
+	/* ==========================
+	 관리자 정보가 올바른지 확인하고 수정해준다.
+	========================== */
 	set AdminID=%request.Get("AdminID")
 	set AdminPW=%request.Get("AdminPW")
 	set AdminNewPW=%request.Get("AdminNewPW")

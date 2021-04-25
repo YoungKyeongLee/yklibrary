@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<script language="cache" runat="server">
-//세션이 끊긴 경우 로그인페이지로 이동 - 유성근 2021.04.22
-	set AdminID=%session.Get("LoginAdmin")
+<script language="cache"  method="OnPreHTTP" arguments="" returntype="%Boolean">
+	quit $$RedirectDependsOnType^StaticManager("Admin")
 </script>
-<script type = "text/javascript">
-	if ("#(AdminID)#"==""){
-		alert("로그인이 필요한 페이지 입니다.");
-		location.href = "/yk/src/static/main/Main.csp"
-	}
+<script language="cache" runat="server">
+	/*
+		[대출/반납 - 프로세스 순서]
+		1. 대출/반납 선택 버튼을 이용해 이용하려는 항목을 선택할 수 있습니다.
+			=> 버튼을 클릭했을 때 일어나는 과정
+				1-1. 버튼 클릭 시 onclick 메서드인 clickButton이 실행됩니다. [참고 : /yk/js/admin/booklend/LendBook.js ]
+				1-2-1. clickButton 메서드는 버튼 색상을 변경해주고, 구분자 값을 변경해줍니다.
+					=> 구분자 : (대출:InsertLendBook or 반납:DeleteLendBook)
+				1-2-2. 반납인 경우엔 대출자아이디를 display:none 해줍니다. (반납할 땐, 아이디정보가 필요없음)
+		2. 값을 입력하고 처리 버튼을 누릅니다.
+			=> 처리 버튼 누른 후 일어나는 과정
+				1-1. 버튼 클릭 시 onclick 메서드인 lendBookSubmit이 실행됩니다. [참고 : /yk/js/admin/booklend/LendBook.js ]
+				1-2. 빈 값을 체크하는데, display 속성이 none이 아닌 값만 빈 값인지 체크 합니다.
+					=> 이유 : 반납일 땐 아이디 값을 입력하지 않아서...
+				1-3. 빈 값이면 alert창으로 모두 입력하도록 안내하고, 빈 값이 없다면 submit을 실행시켜줍니다.
+		3. LendBookPrss.csp 페이지로 이동하여 같이 넘겨받은 input type="hidden" 값으로 대출과 반납을 구분하여 처리하고, 결과를 반환합니다.
+	*/
 </script>
 <html lang="ko">
 <head>
@@ -31,13 +42,24 @@
 			<div class="content_title">대출/반납</div>
 			<hr>
 			<div class="button_List">
+				<!-- 대출/반납 선택 버튼 -->
 				<div class="Button_blue" id="InsertLendBook_Button" onclick="clickButton('InsertLendBook')">대출</div>
 				<div class="Button_grey" id="DeleteLendBook_Button" onclick="clickButton('DeleteLendBook')">반납</div>
 			</div>
 			<form action="LendBookPrss.csp" method="GET" class="lendBookForm">
-				<p><label for="Type"></label><input type="hidden" id="Type" name="Type" value="InsertLendBook"></p>
-				<p><label for="UserUD">대출자 아이디 : </label><input type="text" id="UserID" name="UserID"></p>
-				<p><label for="BookNumber">서지번호 : </label><input type="text" id="BookNumber" name="BookNumber"></p>
+				<p>
+					<!-- 구분자 -->
+					<label for="Type"></label>
+					<input type="hidden" id="Type" name="Type" value="InsertLendBook">
+				</p>
+				<p>
+					<label for="UserUD">대출자 아이디 : </label>
+					<input type="text" id="UserID" name="UserID">
+				</p>
+				<p>
+					<label for="BookNumber">서지번호 : </label>
+					<input type="text" id="BookNumber" name="BookNumber">
+				</p>
 				<div class="Button_blue" onclick="lendBookSubmit()">처리</div>
 			</form>
 	</section>
