@@ -1,5 +1,5 @@
 Cache for Windows^MAC^routine output by %apiRTN^^~Format=Cache.S~^KSC5601
-%RO on 23 Apr 2021 05:49:39PM
+%RO on 29 Apr 2021 11:42:43AM
 AdminBookLendManager^MAC^^65856,64245.68375^0
 AdminBookLendManager
 	;=========================
@@ -206,7 +206,7 @@ GetFindLendNum(UserID,LendDate,BookNumber)
 	;
 .
 
-AdminBookManager^MAC^^65856,64261.147161^0
+AdminBookManager^MAC^^65860,55414.349422^0
 AdminBookManager
 	;=========================
 	; 작성자 : 이영경
@@ -269,7 +269,7 @@ InsertBookYN(BookNumber,BookTitle,BookWriter,BookPublisher)
 	 
 	 [기능 및 반환값]
 	 1. 신규 서지번호라면					: [반환값] Y
-	 2. 중복된 서지번호라면	 신규 서지번호 재발급	: [반환값] N^신규서지번호
+	 2. 중복된 서지번호라면	 신규 서지번호 재발급	: [반환값] N^[신규서지번호]
 	  => 즉 서지번호가 중복이라면 신규 발급 후 도서에 저장된다.
 	  
 	 (1~2 공통처리)	: 신규도서 ^BMast에 저장
@@ -431,7 +431,7 @@ UpdateInformation(AdminID,AdminPW,AdminNewPW)
 	;
 	;
 
-AdminUserManager^MAC^^65857,54819.016975^0
+AdminUserManager^MAC^^65860,41904.312217^0
 AdnminUserManager
 	;=========================
 	; 작성자 : 이영경
@@ -492,7 +492,7 @@ SelectUser(UserStatus,UserWord)
 	;
 	;
 	;
-HTMLSelectBook(AllPage,Page,Paging)
+HTMLSelectUser(AllPage,Page,Paging)
 	/* =======================
 	[이용자 정보 출력]
 	이용자의 정보를 매개변수로 받아온 페이징 방식을 적용해 출력합니다.
@@ -560,7 +560,10 @@ HTMLSelectBook(AllPage,Page,Paging)
 		>
 		if (LoginType="Admin"){
 			&html<
-				<li class="case"><span id="selectUserID" onclick="aboutUser(event)">#(UserID)#</span><a class="deleteUser" title="삭제" onclick="deleteUser('#(UserID)#','#(UserStatus)#')">x</a></li>
+				<li class="case">
+					<span id="selectUserID" onclick="aboutUser(event)">#(UserID)#</span>
+					<a class="deleteUser" title="삭제" onclick="deleteUser('#(UserID)#','#(UserStatus)#')">x</a>
+				</li>
 			>
 		}
 		&html<
